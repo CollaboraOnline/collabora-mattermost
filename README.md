@@ -1,29 +1,28 @@
-# Plugin Starter Template ![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-starter-template/master.svg)
+# Collabora Online
 
-This plugin serves as a starting point for writing a Mattermost plugin. Feel free to base your own plugin off this repository.
+This plugin integrates [Collabora Online](https://www.collaboraoffice.com/collabora-online/) with Mattermost so users can view or edit files directly in Mattermost.
 
-To learn more about plugins, see [our plugin documentation](https://developers.mattermost.com/extend/plugins/).
+## Installation
 
-## Getting Started
-Use GitHub's template feature to make a copy of this repository by clicking the "Use this template" button then clone outside of `$GOPATH`.
+You can get the latest version on the release page.
+Upload & install it via [System Console](https://about.mattermost.com/default-plugin-uploads)
 
-Alternatively shallow clone the repository to a directory outside of `$GOPATH` matching your plugin name:
-```
-git clone --depth 1 https://github.com/mattermost/mattermost-plugin-starter-template com.example.my-plugin
-```
 
-Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`, or allow the use of Go modules within your `$GOPATH` with an `export GO111MODULE=on`.
+## Configuring
 
-Edit `plugin.json` with your `id`, `name`, and `description`:
-```
-{
-    "id": "com.example.my-plugin",
-    "name": "My Plugin",
-    "description": "A plugin to enhance Mattermost."
-}
-```
+After installing the plugin you should go to plugin's settings in System Console and set the Collabora Online WOPI address.
 
-Build your plugin:
+## Notes
+
+This plugin will set the post type "custom_post_with_file" for each post that contains attached files.
+
+# Development
+
+To make the plugin, you need to install a development version of Mattermost [https://developers.mattermost.com/contribute/server/developer-setup/](https://developers.mattermost.com/contribute/server/developer-setup/)
+
+## Make & manual installation
+
+Build the plugin:
 ```
 make
 ```
@@ -31,43 +30,17 @@ make
 This will produce a single plugin file (with support for multiple architectures) for upload to your Mattermost server:
 
 ```
-dist/com.example.my-plugin.tar.gz
+dist/com.collaboraonline.mattermost-x.y.z.tar.gz
 ```
+
+## Make & auto installation
 
 There is a build target to automate deploying and enabling the plugin to your server, but it requires configuration and [http](https://httpie.org/) to be installed:
 ```
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-export MM_ADMIN_USERNAME=admin
+export MM_ADMIN_USERNAME=username
 export MM_ADMIN_PASSWORD=password
 make deploy
 ```
 
-Alternatively, if you are running your `mattermost-server` out of a sibling directory by the same name, use the `deploy` target alone to  unpack the files into the right directory. You will need to restart your server and manually enable your plugin.
 
-In production, deploy and upload your plugin via the [System Console](https://about.mattermost.com/default-plugin-uploads).
-
-## Q&A
-
-### How do I make a server-only or web app-only plugin?
-
-Simply delete the `server` or `webapp` folders and remove the corresponding sections from `plugin.json`. The build scripts will skip the missing portions automatically.
-
-### How do I include assets in the plugin bundle?
-
-Place them into the `assets` directory. To use an asset at runtime, build the path to your asset and open as a regular file:
-
-```go
-bundlePath, err := p.API.GetBundlePath()
-if err != nil {
-    return errors.Wrap(err, "failed to get bundle path")
-}
-
-profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "profile_image.png"))
-if err != nil {
-    return errors.Wrap(err, "failed to read profile image")
-}
-
-if appErr := p.API.SetProfileImage(userID, profileImage); appErr != nil {
-    return errors.Wrap(err, "failed to set profile image")
-}
-```
