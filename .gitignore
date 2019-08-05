@@ -1,0 +1,6 @@
+dist
+.vscode
+.editorconfig
+.circleci
+node_modules
+

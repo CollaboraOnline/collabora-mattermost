@@ -1,0 +1,29 @@
+{
+    "id": "com.collaboraonline.mattermost",
+    "name": "Collabora Online",
+    "description": "Allows users to edit/view documents with the help of Collabora Online",
+    "version": "0.1.0",
+    "min_server_version": "5.12.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "darwin-amd64": "server/dist/plugin-darwin-amd64",
+            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+        }
+    },
+    "webapp": {
+        "bundle_path": "webapp/dist/main.js"
+    },
+    "settings_schema": {
+        "settings": [
+            {
+                "key": "WOPIAddress",
+                "display_name": "WOPI Address",
+                "type": "text",
+                "help_text": "Collabora Online WOPI address. Ex: http://localhost:9980/",
+                "placeholder": "URL",
+                "default": ""
+            }
+        ]
+    }
+}
