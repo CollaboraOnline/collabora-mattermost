@@ -2,11 +2,14 @@
 
 import React from 'react';
 import { id as pluginId } from './manifest';
-import { OPEN_ROOT_MODAL } from './action_types';
+import { OPEN_ROOT_MODAL } from './redux/action_types';
 
 
 const { formatText, messageHtmlToComponent } = window.PostUtils;
-
+/**
+ * PostType component modifies a post that contains files.
+ * It appends file name and the action that can be performed on that file (view or edit)
+ */
 export default class PostType extends React.Component {
 
     constructor(props) {
@@ -15,7 +18,8 @@ export default class PostType extends React.Component {
         const message = post.message || '';
         const formattedText = messageHtmlToComponent(formatText(message));
 
-        //ask the server to parse file IDs and give a list of file names that can be edited with Collabora Online
+        //ask the server to parse file IDs from this post
+        //server returns a list of file names that can be edited with Collabora Online
         const requestAddress = "/plugins/" + pluginId + "/fileInfo";
         fetch(requestAddress, {
             method: 'POST',
@@ -31,12 +35,13 @@ export default class PostType extends React.Component {
         });
 
         this.state = {
-            files: [],//contains only the files that can be edited with Collabora Online
+            files: [],//contains ONLY the files that can be viewed/edited with Collabora Online
             formatedText: formattedText
         };
     }
 
-    editDocument(fileId) {
+    //when the users clicks view or edit file
+    fileAction(fileId) {
         this.props.dispatch({
             type: OPEN_ROOT_MODAL,
             payload: { fileId: fileId }
@@ -44,13 +49,14 @@ export default class PostType extends React.Component {
     }
 
     render() {
+        //prepare HTML with file name and file action (view/edit)
         var files = [];
         for (var i = 0; i < this.state.files.length; i++) {
             let file = this.state.files[i];
             files.push(
                 <div key={i}>
                     <i>{file.name}</i>&nbsp;
-                    <u style={{ cursor: "pointer" }} onClick={this.editDocument.bind(this,
+                    <u style={{ cursor: "pointer" }} onClick={this.fileAction.bind(this,
                         file.id)}>
                         {file.action}
                     </u>
@@ -60,7 +66,9 @@ export default class PostType extends React.Component {
 
         return (
             <div>
+                {/* post text */}
                 {this.state.formatedText}
+                {/* post files */}
                 <div>
                     {files}
                 </div>

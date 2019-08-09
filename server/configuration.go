@@ -69,7 +69,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		fmt.Println("WOPI address changed. Load new WOPI file info.")
 		resp, err := http.Get(configuration.WOPIAddress + "hosting/discovery")
 		if err != nil {
-			fmt.Println("WOPI request error. Please check the WOPI address.", err.Error())
+			p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
 			return errors.New("wopo request error, please check WOPI address")
 		}
 		defer resp.Body.Close()

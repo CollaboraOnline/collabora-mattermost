@@ -1,8 +1,11 @@
 /* eslint-disable */
-
+/**
+ * RootModal component displays a modal with Collabora Online where the file is viewed or edited
+ */
 import React from 'react';
-import { CLOSE_ROOT_MODAL } from './action_types';
+import { CLOSE_ROOT_MODAL } from './redux/action_types';
 import { id as pluginId } from './manifest';
+
 
 export default class RootModal extends React.Component {
 
@@ -18,13 +21,17 @@ export default class RootModal extends React.Component {
         //and load it into the iframe
         const requestAddress = "/plugins/" + pluginId + "/collaboraURL?file_id=" + this.props.modalData.fileId;
         fetch(requestAddress).then((data) => data.json()).then((data) => {
-            document.getElementById("collabora-submit-form").action=data.url;
-            document.getElementById("collabora-form-access-token").value=data.access_token;
+            //add mattermost server url to the file url
+            var splittedURL = window.location.href.split("/");
+            var mattermostServerURL = splittedURL[0] + "//" + splittedURL[2];
+            data.url = data.url.replace("MATTERMOST_SERVER_URL", mattermostServerURL);
+
+            //as the request to Collabora Online shoud be of POST type, a form is used to submit it.
+            document.getElementById("collabora-submit-form").action = data.url;
+            document.getElementById("collabora-form-access-token").value = data.access_token;
             document.getElementById("collabora-submit-form").submit();
         });
     }
-
-    //document.getElementById("collabora-iframe").contentWindow.postMessage('{"MessageId":"Action_Save","SendTime":123,"Values":{"DontTerminateEdit":true,"DontSaveIfUnmodified":false}}',"http://localhost:9980")
 
     render() {
         if (!this.props.modalData.visible) {
@@ -38,15 +45,11 @@ export default class RootModal extends React.Component {
                     style={{ fontSize: '30px', position: 'absolute', top: '5px', right: "5px", color: "white", cursor: "pointer" }}
                     onClick={() => this.props.dispatch({ type: CLOSE_ROOT_MODAL })}
                 />
-                <div style={{ borderRadius: "10px", backgroundColor: "white", display: "inline-block" }}>
+                <div style={{ display: "inline-block" }}>
                     <form action="" method="POST" target="collabora-iframe" id='collabora-submit-form' >
-                      <input id="collabora-form-access-token" name="access_token" value="" type="hidden"/>
+                        <input id="collabora-form-access-token" name="access_token" value="" type="hidden" />
                     </form>
-                    <iframe height="640" width="800" id="collabora-iframe" name="collabora-iframe"></iframe>
-                    <div style={{ textAlign: "center", padding: "3px" }}>
-                        Powered by Collabora Online&nbsp;
-                        <img style={{ height: "25px" }} src="https://www.collaboraoffice.com/wp-content/uploads/2019/03/collabora-productivity-nav-icon.png"></img>
-                    </div>
+                    <iframe height={window.innerHeight - 50} width={window.innerWidth - 200} id="collabora-iframe" name="collabora-iframe"></iframe>
                 </div>
             </div>
         )
