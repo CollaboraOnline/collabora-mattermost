@@ -20,7 +20,7 @@
                 "key": "WOPIAddress",
                 "display_name": "WOPI Address",
                 "type": "text",
-                "help_text": "Collabora Online WOPI address. Ex: http://localhost:9980/",
+                "help_text": "Collabora Online WOPI address. Please see https://www.collaboraoffice.com/code/ for more information.",
                 "placeholder": "URL",
                 "default": ""
             }
