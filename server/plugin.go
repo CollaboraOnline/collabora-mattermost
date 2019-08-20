@@ -172,6 +172,23 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	postInfo, postInfoError := p.API.GetPost(fileInfo.PostId)
+	if fileInfoError != nil {
+		p.API.LogError("Error occured when retrieving post info for file: " + postInfoError.Error())
+		return
+	}
+
+	//check if user has access to the channel where the file was sent
+	//p.API.HasPermissionToChannel(userID,channelID) war returning false for some reason...
+	members, channelMembersError := p.API.GetChannelMembersByIds(postInfo.ChannelId, []string{wopiToken.UserID})
+	if channelMembersError != nil {
+		p.API.LogError("Error occured when retrieving channel members: " + channelMembersError.Error())
+	}
+	if members == nil {
+		p.API.LogError("User doesn't have access to the channel where the file was sent")
+		return
+	}
+
 	//send file to Collabora Online
 	if r.Method == http.MethodGet {
 		if _, err := w.Write(fileContent); err != nil {
