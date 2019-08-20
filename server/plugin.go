@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -27,6 +26,12 @@ type Plugin struct {
 	plugin.MattermostPlugin
 	configurationLock sync.RWMutex
 	configuration     *configuration
+}
+
+//OnActivate is called when the plugin is activated
+func (p *Plugin) OnActivate() error {
+	GenerateEncryptionPassword(p)
+	return nil
 }
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -62,7 +67,7 @@ func (p *Plugin) returnFileInfoForWOPI(w http.ResponseWriter, r *http.Request) {
 	splittedURL := strings.Split(r.URL.Path, "/")
 	fileID := splittedURL[len(splittedURL)-1]
 
-	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI))
+	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI), p)
 	if !isValid || wopiToken.FileID != fileID {
 		p.API.LogError("Collabora Online called the plugin with an invalid token.")
 		return
@@ -129,7 +134,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	//MATTERMOST_SERVER_URL will be replaced on the client side by Javascript
 	//could not find how to get it here :)
 	url := WOPIFiles[strings.ToLower(file.Extension)].Url + "WOPISrc=MATTERMOST_SERVER_URL/plugins/" + manifest.ID + "/wopi/files/" + fileID
-	token := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID)
+	token := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID, p)
 
 	response := struct {
 		URL         string `json:"url"`
@@ -149,35 +154,33 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 	splittedURL := strings.Split(r.URL.Path, "/")
 	fileID := splittedURL[len(splittedURL)-2] //the segment before last segment is the file url
 
-	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI))
+	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI), p)
 	if !isValid || wopiToken.FileID != fileID {
 		p.API.LogError("Invalid token.")
 		return
 	}
 
-	file, err := p.API.GetFile(fileID)
+	fileContent, err := p.API.GetFile(fileID)
 	if err != nil {
 		p.API.LogError("Error retrieving file info, fileID: " + fileID)
 		return
 	}
 
+	fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
+	if fileInfoError != nil {
+		p.API.LogError("Error occured when retrieving file info: " + fileInfoError.Error())
+		return
+	}
+
 	//send file to Collabora Online
 	if r.Method == http.MethodGet {
-		if _, err := w.Write(file); err != nil {
+		if _, err := w.Write(fileContent); err != nil {
 			p.API.LogError("failed to write status", "err", err.Error())
 		}
 	}
 
 	//save file received from Collabora Online
 	if r.Method == http.MethodPost {
-		fmt.Println(fileID)
-		fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
-
-		if fileInfoError != nil {
-			p.API.LogError("Error occured when retrieving file info on save: " + fileInfoError.Error())
-			return
-		}
-
 		f, fileCreateError := os.Create("./data/" + fileInfo.Path)
 		if err != nil {
 			p.API.LogError("Error occured when creating new file: ", fileCreateError.Error())
