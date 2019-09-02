@@ -66,8 +66,14 @@ func (p *Plugin) OnConfigurationChange() error {
 	//retrieve the new WOPI data from <WOPI>/hosting/discovery
 	if wopiAddress != configuration.WOPIAddress {
 		wopiAddress = configuration.WOPIAddress
+
+		//append trailing slash to the WOPI address if needed
+		if wopiAddress[len(wopiAddress)-1:] != "/" {
+			wopiAddress = fmt.Sprintf("%s%s", wopiAddress, "/")
+		}
+
 		fmt.Println("WOPI address changed. Load new WOPI file info.")
-		resp, err := http.Get(configuration.WOPIAddress + "hosting/discovery")
+		resp, err := http.Get(wopiAddress + "hosting/discovery")
 		if err != nil {
 			p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
 			return errors.New("wopo request error, please check WOPI address")
