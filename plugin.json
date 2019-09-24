@@ -3,7 +3,7 @@
     "name": "Collabora Online",
     "description": "Allows users to edit/view documents with the help of Collabora Online",
     "version": "0.1.1",
-    "min_server_version": "5.12.0",
+    "min_server_version": "5.11.0",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",

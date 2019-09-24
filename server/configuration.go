@@ -84,7 +84,11 @@ func (p *Plugin) OnConfigurationChange() error {
 
 		WOPIFiles = make(map[string]WOPIFileInfo)
 		for i := 0; i < len(WOPIData.NetZone.App); i++ {
-			WOPIFiles[strings.ToLower(WOPIData.NetZone.App[i].Action.Ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
+			ext := strings.ToLower(WOPIData.NetZone.App[i].Action.Ext)
+			if ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
+				continue
+			}
+			WOPIFiles[ext] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
 		}
 		fmt.Println("WOPI file info loaded successfully!")
 	}
