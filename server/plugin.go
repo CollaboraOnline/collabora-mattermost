@@ -104,7 +104,7 @@ func (p *Plugin) returnFileInfoForWOPI(w http.ResponseWriter, r *http.Request) {
 		Size:                    fileInfo.Size,
 		OwnerID:                 post.UserId,
 		UserID:                  user.Id,
-		UserFriendlyName:        user.Nickname,
+		UserFriendlyName:        user.GetFullName(),
 		UserCanWrite:            true,
 		UserCanNotWriteRelative: true,
 	}
