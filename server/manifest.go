@@ -5,5 +5,5 @@ var manifest = struct {
 	Version string
 }{
 	ID:      "com.collaboraonline.mattermost",
-	Version: "0.1.1",
+	Version: "1.0.0",
 }
