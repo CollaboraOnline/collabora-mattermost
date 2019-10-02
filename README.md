@@ -1,6 +1,6 @@
-# Collabora Online
+# Collabora Online Mattermost plugin
 
-This plugin integrates [Collabora Online](https://www.collaboraoffice.com/collabora-online/) with Mattermost so users can view or edit files directly in Mattermost.
+This plugin integrates [Collabora Online](https://www.collaboraoffice.com/collabora-online/) with Mattermost so that users can view or edit files directly in Mattermost.
 
 ## Installation
 
