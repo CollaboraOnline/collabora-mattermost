@@ -38,10 +38,13 @@ func GenerateEncryptionPassword(p *Plugin) {
 		for i := 0; i < length; i++ {
 			b.WriteRune(chars[rand.Intn(len(chars))])
 		}
-		str := b.String()
-		writePasswordError := p.API.KVSet(kvEncryptionPassword, []byte(str))
+		password := b.String()
+		saved, writePasswordError := p.API.KVCompareAndSet(kvEncryptionPassword, nil, []byte(password))
 		if writePasswordError != nil {
 			p.API.LogError("Cannot set an encryption password for the plugin")
+		}
+		if !saved {
+			p.API.LogWarn("Skipped write since already set by another plugin instance")
 		}
 	}
 }
