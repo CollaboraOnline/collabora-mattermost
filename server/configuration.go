@@ -88,7 +88,7 @@ func (p *Plugin) OnConfigurationChange() error {
 			if ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
 				continue
 			}
-			WOPIFiles[ext] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
+			WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
 		}
 		fmt.Println("WOPI file info loaded successfully!")
 	}
