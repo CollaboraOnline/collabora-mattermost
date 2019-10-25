@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -37,9 +38,6 @@ type WopiDiscovery struct {
 //WOPIData contains the XML from <WOPI>/hosting/discovery
 var WOPIData WopiDiscovery
 
-//WOPIAddress stores current WOPI address. Used to check if we need to reload WOPI data OnConfigurationChange
-var wopiAddress string
-
 //WOPIFileInfo is used top map file extension with the action & url
 type WOPIFileInfo struct {
 	Url    string //WOPI url to view/edit the file
@@ -54,7 +52,7 @@ func (c *configuration) Clone() *configuration {
 	return &configuration{WOPIAddress: c.WOPIAddress}
 }
 
-//OnConfigurationChange will request new WOPI data
+// OnConfigurationChange is called when plugin's configuration changes
 func (p *Plugin) OnConfigurationChange() error {
 	var configuration = new(configuration)
 
@@ -63,35 +61,52 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	//retrieve the new WOPI data from <WOPI>/hosting/discovery
-	if wopiAddress != configuration.WOPIAddress {
-		wopiAddress = configuration.WOPIAddress
-
-		//append trailing slash to the WOPI address if needed
-		if wopiAddress[len(wopiAddress)-1:] != "/" {
-			wopiAddress = fmt.Sprintf("%s%s", wopiAddress, "/")
-		}
-
-		fmt.Println("WOPI address changed. Load new WOPI file info.")
-		resp, err := http.Get(wopiAddress + "hosting/discovery")
-		if err != nil {
-			p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
-			return errors.New("wopo request error, please check WOPI address")
-		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		xml.Unmarshal(body, &WOPIData)
-
-		WOPIFiles = make(map[string]WOPIFileInfo)
-		for i := 0; i < len(WOPIData.NetZone.App); i++ {
-			ext := strings.ToLower(WOPIData.NetZone.App[i].Action.Ext)
-			if ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
-				continue
-			}
-			WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
-		}
-		fmt.Println("WOPI file info loaded successfully!")
-	}
+	p.setConfiguration(configuration)
 
 	return nil
+}
+
+// set the new configuration and load WOPI file data
+func (p *Plugin) setConfiguration(configuration *configuration) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if configuration != nil && p.configuration == configuration {
+		// Ignore assignment if the configuration struct is empty. Go will optimize the
+		// allocation for same to point at the same memory address, breaking the check
+		// above.
+		if reflect.ValueOf(*configuration).NumField() == 0 {
+			return
+		}
+
+		panic("setConfiguration called with the existing configuration")
+	}
+
+	p.configuration = configuration
+
+	wopiAddress := configuration.WOPIAddress
+
+	//append trailing slash to the WOPI address if needed
+	if wopiAddress[len(wopiAddress)-1:] != "/" {
+		wopiAddress = fmt.Sprintf("%s%s", wopiAddress, "/")
+	}
+
+	resp, err := http.Get(wopiAddress + "hosting/discovery")
+	if err != nil {
+		p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	xml.Unmarshal(body, &WOPIData)
+
+	WOPIFiles = make(map[string]WOPIFileInfo)
+	for i := 0; i < len(WOPIData.NetZone.App); i++ {
+		ext := strings.ToLower(WOPIData.NetZone.App[i].Action.Ext)
+		if ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
+			continue
+		}
+		WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action.Urlsrc, WOPIData.NetZone.App[i].Action.Name}
+	}
+	p.API.LogInfo("WOPI file info loaded successfully!")
 }
