@@ -18,9 +18,9 @@
         "settings": [
             {
                 "key": "WOPIAddress",
-                "display_name": "WOPI Address",
+                "display_name": "Collabora Online address",
                 "type": "text",
-                "help_text": "Collabora Online WOPI address. Please see https://www.collaboraoffice.com/code/ for more information.",
+                "help_text": "Collabora Online address. Please see https://www.collaboraoffice.com/integrations/mattermost-plugin/ for more information.",
                 "placeholder": "URL",
                 "default": ""
             }
