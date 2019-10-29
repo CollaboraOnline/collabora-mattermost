@@ -17,15 +17,10 @@ export default class RootModal extends React.Component {
         if (this.props.modalData.fileId == undefined)
             return;
 
-        //ask the server for the Collabora Online URL where the file will be edited
+        //ask the server for the Collabora Online URL & token where the file will be edited
         //and load it into the iframe
         const requestAddress = "/plugins/" + pluginId + "/collaboraURL?file_id=" + this.props.modalData.fileId;
         fetch(requestAddress).then((data) => data.json()).then((data) => {
-            //add mattermost server url to the file url
-            var splittedURL = window.location.href.split("/");
-            var mattermostServerURL = splittedURL[0] + "//" + splittedURL[2];
-            data.url = data.url.replace("MATTERMOST_SERVER_URL", mattermostServerURL);
-
             //as the request to Collabora Online shoud be of POST type, a form is used to submit it.
             document.getElementById("collabora-submit-form").action = data.url;
             document.getElementById("collabora-form-access-token").value = data.access_token;

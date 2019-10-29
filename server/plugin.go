@@ -131,9 +131,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	//MATTERMOST_SERVER_URL will be replaced on the client side by Javascript
-	//could not find how to get it here :)
-	url := WOPIFiles[strings.ToLower(file.Extension)].Url + "WOPISrc=MATTERMOST_SERVER_URL/plugins/" + manifest.ID + "/wopi/files/" + fileID
+	url := WOPIFiles[strings.ToLower(file.Extension)].Url + "WOPISrc=" + *p.API.GetConfig().ServiceSettings.SiteURL + "/plugins/" + manifest.ID + "/wopi/files/" + fileID
 	token := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID, p)
 
 	response := struct {
