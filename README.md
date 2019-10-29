@@ -6,11 +6,12 @@ This plugin integrates [Collabora Online](https://www.collaboraoffice.com/collab
 
 You can get the latest version on the release page.
 Upload & install it via [System Console](https://about.mattermost.com/default-plugin-uploads)
+You can find more detailed instructions on our [blog post](https://www.collaboraoffice.com/integrations/mattermost-plugin/)
 
 
 ## Configuring
 
-After installing the plugin you should go to plugin's settings in System Console and set the Collabora Online WOPI address.
+After installing the plugin you should go to plugin's settings in System Console and set the Collabora Online address.
 
 ## Notes
 
