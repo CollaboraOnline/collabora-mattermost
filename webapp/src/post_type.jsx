@@ -1,9 +1,8 @@
 /* eslint-disable */
-
+import PropTypes from 'prop-types';
 import React from 'react';
 import { id as pluginId } from './manifest';
 import { OPEN_ROOT_MODAL } from './redux/action_types';
-
 
 const { formatText, messageHtmlToComponent } = window.PostUtils;
 /**
@@ -12,32 +11,35 @@ const { formatText, messageHtmlToComponent } = window.PostUtils;
  */
 export default class PostType extends React.Component {
 
+    static propTypes = {
+        post: PropTypes.object.isRequired,
+        fileInfos: PropTypes.arrayOf(PropTypes.object),
+    }
+
+    static wopiFiles;
+
     constructor(props) {
         super(props);
         const post = { ...this.props.post };
+        const fileInfos = { ...this.props.fileInfos };
         const message = post.message || '';
         const formattedText = messageHtmlToComponent(formatText(message));
-
-        //ask the server to parse file IDs from this post
-        //server returns a list of file names that can be edited with Collabora Online
-        const requestAddress = "/plugins/" + pluginId + "/fileInfo";
-        fetch(requestAddress, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(post.file_ids)
-        }).then((data) => data.json()).then((data) => {
-            data = data.filter((e) => e.id !== "");//a file that cannot be edited/viewed looks like this {id: "", name: "", extension: ""}
-            this.setState({
-                files: data
-            });
-        });
-
         this.state = {
             files: [],//contains ONLY the files that can be viewed/edited with Collabora Online
             formatedText: formattedText
         };
+
+        //prepare post files
+        Object.keys(fileInfos).forEach((key) => {
+            let file = fileInfos[key];
+            if(PostType.wopiFiles[file.extension] != undefined){
+                this.state.files.push({
+                    name: file.name,
+                    id: file.id,
+                    action: PostType.wopiFiles[file.extension].Action
+                })
+            }
+        })
     }
 
     //when the users clicks view or edit file

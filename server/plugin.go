@@ -41,6 +41,11 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.parseFileIds(w, r)
 	}
 
+	//send list with file extensions and actions associated with these files
+	if r.URL.Path == "/wopiFileList" {
+		p.returnWopiFileList(w, r)
+	}
+
 	//send URL and token which the client will use to load Collabora Online in the iframe
 	if r.URL.Path == "/collaboraURL" {
 		p.returnCollaboraOnlineFileURL(w, r)
@@ -272,6 +277,13 @@ func (p *Plugin) serveAsset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := w.Write(asset); err != nil {
+		p.API.LogError("failed to write status", "err", err.Error())
+	}
+}
+
+func (p *Plugin) returnWopiFileList(w http.ResponseWriter, r *http.Request) {
+	responseJSON, _ := json.Marshal(WOPIFiles)
+	if _, err := w.Write(responseJSON); err != nil {
 		p.API.LogError("failed to write status", "err", err.Error())
 	}
 }
