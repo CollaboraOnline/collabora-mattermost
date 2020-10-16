@@ -2,7 +2,7 @@
     "id": "com.collaboraonline.mattermost",
     "name": "Collabora Online",
     "description": "Allows users to edit/view documents with the help of Collabora Online",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "min_server_version": "5.11.0",
     "server": {
         "executables": {

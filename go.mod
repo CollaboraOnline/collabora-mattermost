@@ -19,3 +19,6 @@ require (
 
 // Workaround for https://github.com/golang/go/issues/30831 and fallout.
 replace github.com/golang/lint => github.com/golang/lint v0.0.0-20190227174305-8f45f776aaf1
+
+// Workaround for willnorris.com/go/imageproxy@v0.8.1-0.20190326225038-d4246a08fdec: invalid pseudo-version: does not match version-control
+replace willnorris.com/go/imageproxy => github.com/willnorris/imageproxy v0.8.0
