@@ -40,7 +40,7 @@ var WOPIData WopiDiscovery
 
 //WOPIFileInfo is used top map file extension with the action & url
 type WOPIFileInfo struct {
-	Url    string //WOPI url to view/edit the file
+	URL    string //WOPI url to view/edit the file
 	Action string //edit or view
 }
 
@@ -102,7 +102,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 
 	WOPIFiles = make(map[string]WOPIFileInfo)
 	for i := 0; i < len(WOPIData.NetZone.App); i++ {
-		for j := 0; j < len(WOPIData.NetZone.App[i].Action; j++) {
+		for j := 0; j < len(WOPIData.NetZone.App[i].Action); j++ {
 			ext := strings.ToLower(WOPIData.NetZone.App[i].Action[j].Ext)
 			if ext == "" || ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
 				continue
