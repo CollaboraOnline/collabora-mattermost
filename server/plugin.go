@@ -176,7 +176,7 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 	}
 
 	postInfo, postInfoError := p.API.GetPost(fileInfo.PostId)
-	if fileInfoError != nil {
+	if postInfoError != nil {
 		p.API.LogError("Error occured when retrieving post info for file: " + postInfoError.Error())
 		return
 	}
