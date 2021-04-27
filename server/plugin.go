@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
 //FileInfo contains file informaton sent to the client
@@ -68,9 +68,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) returnFileInfoForWOPI(w http.ResponseWriter, r *http.Request) {
-
-	splittedURL := strings.Split(r.URL.Path, "/")
-	fileID := splittedURL[len(splittedURL)-1]
+	splitURL := strings.Split(r.URL.Path, "/")
+	fileID := splitURL[len(splitURL)-1]
 
 	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI), p)
 	if !isValid || wopiToken.FileID != fileID {
@@ -136,7 +135,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	url := WOPIFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + *p.API.GetConfig().ServiceSettings.SiteURL + "/plugins/" + manifest.ID + "/wopi/files/" + fileID
+	url := WOPIFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + *p.API.GetConfig().ServiceSettings.SiteURL + "/plugins/" + manifest.Id + "/wopi/files/" + fileID
 	token := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID, p)
 
 	response := struct {
@@ -153,9 +152,8 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
-
-	splittedURL := strings.Split(r.URL.Path, "/")
-	fileID := splittedURL[len(splittedURL)-2] //the segment before last segment is the file url
+	splitURL := strings.Split(r.URL.Path, "/")
+	fileID := splitURL[len(splitURL)-2] //the segment before last segment is the file url
 
 	wopiToken, isValid := DecodeToken(getAccessTokenFromURI(r.RequestURI), p)
 	if !isValid || wopiToken.FileID != fileID {
@@ -171,13 +169,13 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 
 	fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
 	if fileInfoError != nil {
-		p.API.LogError("Error occured when retrieving file info: " + fileInfoError.Error())
+		p.API.LogError("Error occurred when retrieving file info: " + fileInfoError.Error())
 		return
 	}
 
 	postInfo, postInfoError := p.API.GetPost(fileInfo.PostId)
-	if fileInfoError != nil {
-		p.API.LogError("Error occured when retrieving post info for file: " + postInfoError.Error())
+	if postInfoError != nil {
+		p.API.LogError("Error occurred when retrieving post info for file: " + postInfoError.Error())
 		return
 	}
 
@@ -185,7 +183,7 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 	//p.API.HasPermissionToChannel(userID,channelID) war returning false for some reason...
 	members, channelMembersError := p.API.GetChannelMembersByIds(postInfo.ChannelId, []string{wopiToken.UserID})
 	if channelMembersError != nil {
-		p.API.LogError("Error occured when retrieving channel members: " + channelMembersError.Error())
+		p.API.LogError("Error occurred when retrieving channel members: " + channelMembersError.Error())
 	}
 	if members == nil {
 		p.API.LogError("User doesn't have access to the channel where the file was sent")
@@ -202,34 +200,33 @@ func (p *Plugin) parseWopiRequests(w http.ResponseWriter, r *http.Request) {
 	//save file received from Collabora Online
 	if r.Method == http.MethodPost {
 		f, fileCreateError := os.Create("./data/" + fileInfo.Path)
-		if err != nil {
-			p.API.LogError("Error occured when creating new file: ", fileCreateError.Error())
+		if fileCreateError != nil {
+			p.API.LogError("Error occurred when creating new file: ", fileCreateError.Error())
 			return
 		}
 
 		body, bodyReadError := ioutil.ReadAll(r.Body)
 		if bodyReadError != nil {
-			p.API.LogError("Error occured when reading body:", bodyReadError.Error())
+			p.API.LogError("Error occurred when reading body:", bodyReadError.Error())
 			return
 		}
 
 		_, fileSaveError := f.Write(body)
-		if err != nil {
-			p.API.LogError("Error occured when writing contents to file: " + fileSaveError.Error())
+		if fileSaveError != nil {
+			p.API.LogError("Error occurred when writing contents to file: " + fileSaveError.Error())
 			f.Close()
 			return
 		}
 
 		fileCloseError := f.Close()
-		if err != nil {
-			p.API.LogError("Error occured when closing the file: " + fileCloseError.Error())
+		if fileCloseError != nil {
+			p.API.LogError("Error occurred when closing the file: " + fileCloseError.Error())
 			return
 		}
 	}
 }
 
 func (p *Plugin) parseFileIds(w http.ResponseWriter, r *http.Request) {
-
 	//extract fileIds array from body
 	body, bodyReadError := ioutil.ReadAll(r.Body)
 	if bodyReadError != nil {
@@ -260,9 +257,8 @@ func (p *Plugin) parseFileIds(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) serveAsset(w http.ResponseWriter, r *http.Request) {
-
-	splittedURL := strings.Split(r.URL.Path, "/")
-	fileName := splittedURL[len(splittedURL)-1] //last segment is the file name
+	splitURL := strings.Split(r.URL.Path, "/")
+	fileName := splitURL[len(splitURL)-1] //last segment is the file name
 
 	bundlePath, bundlePathError := p.API.GetBundlePath()
 	if bundlePathError != nil {
