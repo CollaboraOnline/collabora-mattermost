@@ -29,7 +29,7 @@ type WopiDiscovery struct {
 				Text   string `xml:",chardata"`
 				Ext    string `xml:"ext,attr"`
 				Name   string `xml:"name,attr"`
-				Urlsrc string `xml:"urlsrc,attr"`
+				URLSrc string `xml:"urlsrc,attr"`
 			} `xml:"action"`
 		} `xml:"app"`
 	} `xml:"net-zone"`
@@ -98,7 +98,15 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	xml.Unmarshal(body, &WOPIData)
+	if err != nil {
+		p.API.LogError("WOPI request error. Failed to read WOPI request body. Please check the WOPI address.", err.Error())
+		return
+	}
+
+	if err := xml.Unmarshal(body, &WOPIData); err != nil {
+		p.API.LogError("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())
+		return
+	}
 
 	WOPIFiles = make(map[string]WOPIFileInfo)
 	for i := 0; i < len(WOPIData.NetZone.App); i++ {
@@ -107,7 +115,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 			if ext == "" || ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
 				continue
 			}
-			WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action[j].Urlsrc, WOPIData.NetZone.App[i].Action[j].Name}
+			WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action[j].URLSrc, WOPIData.NetZone.App[i].Action[j].Name}
 		}
 	}
 	p.API.LogInfo("WOPI file info loaded successfully!")
