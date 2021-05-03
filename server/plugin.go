@@ -135,13 +135,13 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	url := WOPIFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + *p.API.GetConfig().ServiceSettings.SiteURL + "/plugins/" + manifest.Id + "/wopi/files/" + fileID
-	token := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID, p)
+	wopiURL := WOPIFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + *p.API.GetConfig().ServiceSettings.SiteURL + "/plugins/" + manifest.Id + "/wopi/files/" + fileID
+	wopiToken := EncodeToken(r.Header.Get("Mattermost-User-Id"), fileID, p)
 
 	response := struct {
 		URL         string `json:"url"`
 		AccessToken string `json:"access_token"` //client will pass this token as a POST parameter to Collabora Online when loading the iframe
-	}{url, token}
+	}{wopiURL, wopiToken}
 
 	responseJSON, _ := json.Marshal(response)
 

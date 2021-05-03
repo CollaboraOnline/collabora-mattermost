@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -91,7 +92,11 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 		wopiAddress = fmt.Sprintf("%s%s", wopiAddress, "/")
 	}
 
-	resp, err := http.Get(wopiAddress + "hosting/discovery")
+	// TODO: move this to a configurable system console setting
+	customTransport := http.DefaultTransport.(*http.Transport).Clone()
+	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	client := &http.Client{Transport: customTransport}
+	resp, err := client.Get(wopiAddress + "hosting/discovery")
 	if err != nil {
 		p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
 		return
