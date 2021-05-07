@@ -13,7 +13,7 @@ export default class Plugin {
             (fileInfo) => {
                 const state = store.getState();
                 const wopiFiles = wopiFilesList(state);
-                return Boolean(wopiFiles[fileInfo.extension]);
+                return Boolean(wopiFiles?.[fileInfo.extension]);
             },
             WopiFilePreview,
         );

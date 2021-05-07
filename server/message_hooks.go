@@ -11,14 +11,13 @@ import (
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	//change the post type only if it contains any files that can be viewed/edited with Collabora Online
 	changePostType := false
-	for i := 0; i < len(post.FileIds); i++ {
-		fileInfo, fileInfoError := p.API.GetFileInfo(post.FileIds[i])
+	for _, fileID := range post.FileIds {
+		fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
 		if fileInfoError != nil {
 			p.API.LogError("Could not retrieve file info on message post")
 			continue
 		}
-		_, ok := WOPIFiles[strings.ToLower(fileInfo.Extension)]
-		if ok {
+		if _, ok := WOPIFiles[strings.ToLower(fileInfo.Extension)]; ok {
 			changePostType = true
 		}
 	}

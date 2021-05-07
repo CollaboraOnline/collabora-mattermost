@@ -1,7 +1,7 @@
 {
     "id": "com.collaboraonline.mattermost",
     "name": "Collabora Online",
-    "description": "Allows users to edit/view documents with the help of Collabora Online",
+    "description": "Allows users to edit/view documents with the help of Collabora Online.",
     "version": "1.1.0",
     "min_server_version": "5.11.0",
     "server": {
@@ -15,14 +15,23 @@
         "bundle_path": "webapp/dist/main.js"
     },
     "settings_schema": {
+        "header": "Collabora Online is a powerful LibreOffice-based online office suite with collaborative editing, which supports all major documents, spreadsheet and presentation file formats and works together with all modern browsers.",
+        "footer": "Please see https://www.collaboraoffice.com/integrations/mattermost-plugin/ for more information.",
         "settings": [
             {
                 "key": "WOPIAddress",
-                "display_name": "Collabora Online address",
+                "display_name": "Collabora Online Address:",
                 "type": "text",
-                "help_text": "Collabora Online address. Please see https://www.collaboraoffice.com/integrations/mattermost-plugin/ for more information.",
+                "help_text": "Collabora Online requires a separate server acting as a WOPI-like Client to provide editing capabilities. Please configure a Collabora Online server to start editing documents.",
                 "placeholder": "URL",
                 "default": ""
+            },
+            {
+                "key": "DisableCertificateVerification",
+                "display_name": "Disable certificate verification (insecure):",
+                "type": "bool",
+                "help_text": "Enable if your Collabora Online server uses a self signed certificate.",
+                "default": false
             }
         ]
     }

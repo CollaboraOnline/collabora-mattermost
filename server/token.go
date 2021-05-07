@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -12,7 +11,7 @@ import (
 var kvEncryptionPassword = "encryptionPassword"
 var fallbackPassword = "" //if the plugin fails to save password to KV, this fallback password will be used
 
-//WOPIToken is the token used for WOPI authnetication.
+//WOPIToken is the token used for WOPI authentication.
 //When a user wants to open a file with Collabora Online this token is passed to Collabora Online
 //Collabora Online will use this token when it loads/saves a file
 type WOPIToken struct {
@@ -23,16 +22,18 @@ type WOPIToken struct {
 
 //GenerateEncryptionPassword generates a password for encrypting the tokens
 //This method is called from main, and will generate a password only the first time when the plugin is loaded
-func GenerateEncryptionPassword(p *Plugin) {
+func (p *Plugin) GenerateEncryptionPassword() {
 	currentPassword, readPasswordError := p.API.KVGet(kvEncryptionPassword)
 	if readPasswordError != nil {
 		p.API.LogError("Cannot retrieve encryption password")
 	}
 	if len(currentPassword) == 0 {
 		rand.Seed(time.Now().UnixNano())
-		chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-			"abcdefghijklmnopqrstuvwxyz" +
-			"0123456789")
+		chars := []rune(
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+				"abcdefghijklmnopqrstuvwxyz" +
+				"0123456789",
+		)
 		length := 20
 		var b strings.Builder
 		for i := 0; i < length; i++ {
@@ -66,11 +67,12 @@ func EncodeToken(userID string, fileID string, p *Plugin) string {
 		UserID: userID,
 		FileID: fileID,
 	})
-	tokenstring, err := token.SignedString(getEncryptionPassword(p))
+	signedString, err := token.SignedString(getEncryptionPassword(p))
 	if err != nil {
-		log.Fatalln(err)
+		p.API.LogError("Failed to encode WOPI token", "Error", err.Error())
+		return ""
 	}
-	return tokenstring
+	return signedString
 }
 
 //DecodeToken decodes a token string an returns WOPIToken and isValid
@@ -81,6 +83,7 @@ func DecodeToken(tokenString string, p *Plugin) (WOPIToken, bool) {
 	})
 
 	if err != nil {
+		p.API.LogError("Failed to decode WOPI token", "Error", err.Error())
 		return WOPIToken{}, false
 	}
 
