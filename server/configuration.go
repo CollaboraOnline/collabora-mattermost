@@ -10,11 +10,8 @@ import (
 )
 
 var (
-	//WOPIData contains the XML from <WOPI>/hosting/discovery
-	WOPIData WopiDiscovery
-
-	//WOPIFiles maps file extension with file action & url
-	WOPIFiles map[string]WOPIFileInfo
+	//WopiFiles maps file extension with file action & url
+	WopiFiles map[string]WopiFile
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -97,35 +94,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	p.configuration = configuration
 }
 
-// OnConfigurationChange is invoked when configuration changes may have been made.
-func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
-
-	// Load the public configuration fields from the Mattermost server configuration.
-	if loadConfigErr := p.API.LoadPluginConfiguration(configuration); loadConfigErr != nil {
-		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
-	}
-
-	if err := configuration.ProcessConfiguration(); err != nil {
-		p.API.LogError("Error in ProcessConfiguration.", "Error", err.Error())
-		return err
-	}
-
-	if err := configuration.IsValid(); err != nil {
-		p.API.LogError("Error in Validating Configuration.", "Error", err.Error())
-		return err
-	}
-
-	if err := p.loadWopiFileInfo(configuration.WOPIAddress); err != nil {
-		return errors.Wrap(err, "could not load wopi file info")
-	}
-
-	p.setConfiguration(configuration)
-
-	return nil
-}
-
-// loadWopiFileInfo loads the WOPI file data
+// loadWopiFileInfo loads the WOPI file data to memory
 func (p *Plugin) loadWopiFileInfo(wopiAddress string) error {
 	client := p.getHTTPClient()
 	resp, err := client.Get(wopiAddress + "/hosting/discovery")
@@ -140,22 +109,24 @@ func (p *Plugin) loadWopiFileInfo(wopiAddress string) error {
 		return err
 	}
 
-	if err := xml.Unmarshal(body, &WOPIData); err != nil {
+	//wopiData contains the XML from <WOPI>/hosting/discovery
+	var wopiData WopiDiscovery
+	if err := xml.Unmarshal(body, &wopiData); err != nil {
 		p.API.LogError("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())
 		return err
 	}
 
-	WOPIFiles = make(map[string]WOPIFileInfo)
-	for i := 0; i < len(WOPIData.NetZone.App); i++ {
-		for j := 0; j < len(WOPIData.NetZone.App[i].Action); j++ {
-			ext := strings.ToLower(WOPIData.NetZone.App[i].Action[j].Ext)
+	WopiFiles = make(map[string]WopiFile)
+	for _, app := range wopiData.NetZone.App {
+		for _, action := range app.Action {
+			ext := strings.ToLower(action.Ext)
 			if ext == "" || ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "gif" {
 				continue
 			}
-			WOPIFiles[strings.ToLower(ext)] = WOPIFileInfo{WOPIData.NetZone.App[i].Action[j].URLSrc, WOPIData.NetZone.App[i].Action[j].Name}
+			WopiFiles[ext] = WopiFile{action.URLSrc, action.Name}
 		}
 	}
 
-	p.API.LogInfo("WOPI file info loaded successfully!")
+	p.API.LogInfo("WOPI file info loaded successfully!", "wopiFiles", WopiFiles)
 	return nil
 }

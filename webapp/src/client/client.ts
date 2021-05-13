@@ -12,7 +12,7 @@ export default class Client {
 
     constructor() {
         this.apiURL = '/api/v4';
-        this.baseURL = `/plugins/${pluginId}`;
+        this.baseURL = `/plugins/${pluginId}/api/v1`;
     }
 
     getFileUrl = (fileID: string) => {
