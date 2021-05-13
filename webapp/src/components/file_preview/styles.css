@@ -1,0 +1,11 @@
+.FullScreenModal .close-x svg {
+    fill: #626262;
+}
+
+.FullScreenModal .collabora-action-button {
+    color: #626262 !important;
+}
+
+.FullScreenModal .collabora-action-button:hover {
+    background-color: #efefef;
+}

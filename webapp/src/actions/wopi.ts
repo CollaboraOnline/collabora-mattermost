@@ -1,5 +1,7 @@
 import {Dispatch} from 'redux';
 
+import {ActionResult} from 'mattermost-redux/types/actions';
+
 import Client from '../client';
 import Constants from '../constants';
 
@@ -16,7 +18,7 @@ export function getCollaboraFileURL(fileID: string) {
 }
 
 export function getWopiFilesList() {
-    return async (dispatch: Dispatch) => {
+    return async (dispatch: Dispatch): Promise<ActionResult> => {
         let data = null;
         try {
             data = await Client.getWopiFilesList();

@@ -49,7 +49,7 @@ func (c *configuration) ProcessConfiguration() error {
 
 // IsValid checks if all needed fields are set.
 func (c *configuration) IsValid() error {
-	if strings.HasPrefix(c.WOPIAddress, "http") {
+	if !strings.HasPrefix(c.WOPIAddress, "http") {
 		return errors.New("please provide the WOPIAddress")
 	}
 

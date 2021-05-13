@@ -1,4 +1,4 @@
-import {GlobalState} from 'mattermost-redux/types/store';
+import {GlobalState} from 'mattermost-webapp/types/store';
 
 import {id as pluginId} from '../manifest';
 
@@ -6,3 +6,5 @@ import {id as pluginId} from '../manifest';
 const getPluginState = (state: GlobalState) => state['plugins-' + pluginId] || {};
 
 export const wopiFilesList = (state: GlobalState) => getPluginState(state).wopiFilesList;
+
+export const filePreviewModal = (state: GlobalState) => getPluginState(state).filePreviewModal;
