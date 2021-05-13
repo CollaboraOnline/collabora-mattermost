@@ -6,7 +6,7 @@ const PLUGIN_ID = require('../plugin.json').id;
 
 const NPM_TARGET = process.env.npm_lifecycle_event; //eslint-disable-line no-process-env
 let mode = 'production';
-let devtool = '';
+let devtool;
 if (NPM_TARGET === 'debug' || NPM_TARGET === 'debug:watch') {
     mode = 'development';
     devtool = 'source-map';
@@ -36,7 +36,7 @@ if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
 
 module.exports = {
     entry: [
-        './src/index.jsx',
+        './src/index.tsx',
     ],
     resolve: {
         modules: [
@@ -54,11 +54,16 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        cacheDirectory: true,
 
                         // Babel configuration is in babel.config.js because jest requires it to be there.
+                        cacheDirectory: true,
                     },
                 },
+            },
+            {
+                test: /.(bmp|gif|jpe?g|png|svg)$/,
+                exclude: /node_modules/,
+                type: 'asset',
             },
             {
                 test: /\.(scss|css)$/,
@@ -90,7 +95,6 @@ module.exports = {
     },
     output: {
         devtoolNamespace: PLUGIN_ID,
-        path: path.join(__dirname, '/dist'),
         publicPath: '/',
         filename: 'main.js',
     },

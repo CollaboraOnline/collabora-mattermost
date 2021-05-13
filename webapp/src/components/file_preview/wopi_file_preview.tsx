@@ -1,18 +1,33 @@
-import React, {FC, useEffect} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 
 import {FileInfo} from 'mattermost-redux/types/files';
 
-import Client from '../client';
+import Client from 'client';
 
-interface ComponentProps {
+type Props = {
     fileInfo: FileInfo;
 }
 
-export const WopiFilePreview: FC<ComponentProps> = (props: ComponentProps) => {
+export const WopiFilePreview: FC<Props> = (props: Props) => {
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+    const handleResize = () => {
+        setWindowHeight(window.innerHeight);
+        setWindowWidth(window.innerWidth);
+    };
+
     useEffect(() => {
-        const {fileInfo} = props;
-        if (fileInfo?.id) {
-            handleWopiFile(fileInfo.id);
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        const fileID = props.fileInfo?.id;
+        if (fileID) {
+            handleWopiFile(fileID);
         }
     }, [props.fileInfo?.id]);
 
@@ -34,6 +49,9 @@ export const WopiFilePreview: FC<ComponentProps> = (props: ComponentProps) => {
                 overflowX: 'auto',
                 overflowY: 'hidden',
                 position: 'relative',
+                flex: '1 1 0',
+                background: '#f6f6f6',
+                borderTop: 'none',
             }}
         >
             <form
@@ -50,10 +68,11 @@ export const WopiFilePreview: FC<ComponentProps> = (props: ComponentProps) => {
                 />
             </form>
             <iframe
-                height={window.innerHeight - 50}
-                width={window.innerWidth - 200}
                 id='collabora-iframe'
                 name='collabora-iframe'
+                height={windowHeight - 69}
+                width={windowWidth - 5}
+                style={{border: 'none'}}
             />
         </div>
     );
