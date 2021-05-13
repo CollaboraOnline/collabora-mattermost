@@ -1,73 +1,51 @@
 package main
 
 import (
-	"math/rand"
-	"strings"
-	"time"
-
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 )
 
-var kvEncryptionPassword = "encryptionPassword"
-var fallbackPassword = "" //if the plugin fails to save password to KV, this fallback password will be used
+const (
+	kvEncryptionPasswordKey = "encryptionPassword"
+)
 
-//WOPIToken is the token used for WOPI authentication.
-//When a user wants to open a file with Collabora Online this token is passed to Collabora Online
-//Collabora Online will use this token when it loads/saves a file
-type WOPIToken struct {
-	UserID string `json:"userId"`
-	FileID string `json:"fileId"`
-	jwt.StandardClaims
-}
+var (
+	//if the plugin fails to save password to KV, this fallback password will be used
+	fallbackPassword = ""
+)
 
-//GenerateEncryptionPassword generates a password for encrypting the tokens
-//This method is called from main, and will generate a password only the first time when the plugin is loaded
-func (p *Plugin) GenerateEncryptionPassword() {
-	currentPassword, readPasswordError := p.API.KVGet(kvEncryptionPassword)
-	if readPasswordError != nil {
-		p.API.LogError("Cannot retrieve encryption password")
+//EnsureEncryptionPassword generates a password for encrypting the tokens, if it does not exist
+//This method is called from plugin.go, and will generate a password only the first time when the plugin is loaded
+func (p *Plugin) EnsureEncryptionPassword() {
+	password := GenerateEncryptionPassword()
+	ok, err := p.KVEnsure(kvEncryptionPasswordKey, []byte(password))
+	if err != nil {
+		p.API.LogError("Failed to set an encryption password for the plugin, fallback password will be used.", "Error", err.Error())
+		fallbackPassword = password
+		return
 	}
-	if len(currentPassword) == 0 {
-		rand.Seed(time.Now().UnixNano())
-		chars := []rune(
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-				"abcdefghijklmnopqrstuvwxyz" +
-				"0123456789",
-		)
-		length := 20
-		var b strings.Builder
-		for i := 0; i < length; i++ {
-			b.WriteRune(chars[rand.Intn(len(chars))])
-		}
-		password := b.String()
-		saved, writePasswordError := p.API.KVCompareAndSet(kvEncryptionPassword, nil, []byte(password))
-		if writePasswordError != nil {
-			p.API.LogError("Cannot set an encryption password for the plugin, fallback password will be used")
-			fallbackPassword = password
-		}
-		if !saved {
-			p.API.LogWarn("Skipped write since already set by another plugin instance")
-		}
+	if !ok {
+		p.API.LogWarn("Skipped write since already set by another plugin instance.")
 	}
 }
 
-func getEncryptionPassword(p *Plugin) []byte {
+func (p *Plugin) getEncryptionPassword() []byte {
 	//if the fallbackPassword is set this means the plugin cannot read from KV pair
 	if fallbackPassword != "" {
 		return []byte(fallbackPassword)
 	}
 
-	tokenSignPasswordByte, _ := p.API.KVGet(kvEncryptionPassword)
+	tokenSignPasswordByte, _ := p.API.KVGet(kvEncryptionPasswordKey)
 	return tokenSignPasswordByte
 }
 
 //EncodeToken creates a token for WOPI
-func EncodeToken(userID string, fileID string, p *Plugin) string {
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), &WOPIToken{
+func (p *Plugin) EncodeToken(userID string, fileID string) string {
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), &WopiToken{
 		UserID: userID,
 		FileID: fileID,
 	})
-	signedString, err := token.SignedString(getEncryptionPassword(p))
+	signedString, err := token.SignedString(p.getEncryptionPassword())
 	if err != nil {
 		p.API.LogError("Failed to encode WOPI token", "Error", err.Error())
 		return ""
@@ -75,17 +53,33 @@ func EncodeToken(userID string, fileID string, p *Plugin) string {
 	return signedString
 }
 
-//DecodeToken decodes a token string an returns WOPIToken and isValid
-func DecodeToken(tokenString string, p *Plugin) (WOPIToken, bool) {
-	wopiToken := WOPIToken{}
+//DecodeToken decodes a token string an returns WopiToken and isValid
+func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
+	wopiToken := WopiToken{}
 	_, err := jwt.ParseWithClaims(tokenString, &wopiToken, func(token *jwt.Token) (interface{}, error) {
-		return getEncryptionPassword(p), nil
+		return p.getEncryptionPassword(), nil
 	})
 
 	if err != nil {
 		p.API.LogError("Failed to decode WOPI token", "Error", err.Error())
-		return WOPIToken{}, false
+		return WopiToken{}, false
 	}
 
 	return wopiToken, true
+}
+
+// GetWopiTokenFromURI decodes a token string from the URI
+// returns WopiToken and error
+func (p *Plugin) GetWopiTokenFromURI(uri string) (WopiToken, error) {
+	token, tokenErr := getAccessTokenFromURI(uri)
+	if tokenErr != nil {
+		return WopiToken{}, errors.Wrap(tokenErr, "failed to retrieve token from URI: "+uri)
+	}
+
+	wopiToken, isValid := p.DecodeToken(token)
+	if !isValid {
+		return WopiToken{}, errors.New("collaboraOnline called the plugin with an invalid token")
+	}
+
+	return wopiToken, nil
 }

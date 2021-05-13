@@ -17,7 +17,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 			p.API.LogError("Could not retrieve file info on message post")
 			continue
 		}
-		if _, ok := WOPIFiles[strings.ToLower(fileInfo.Extension)]; ok {
+		if _, ok := WopiFiles[strings.ToLower(fileInfo.Extension)]; ok {
 			changePostType = true
 		}
 	}
