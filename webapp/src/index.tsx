@@ -1,35 +1,36 @@
-import {Store} from 'redux';
+import {AnyAction, Store} from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
 
-//@ts-ignore Webapp imports don't work properly
+//@ts-ignore PluginRegistry doesn't have types yet
 import {PluginRegistry} from 'mattermost-webapp/plugins/registry';
-import {GlobalState} from 'mattermost-webapp/types/store';
 
+import {GlobalState} from 'mattermost-webapp/types/store';
 import {FileInfo} from 'mattermost-redux/types/files';
 
+import {showFilePreview} from 'actions/preview';
+import {getWopiFilesList} from 'actions/wopi';
+import {wopiFilesList} from 'selectors';
+import Reducer from 'reducers';
+
+import FilePreviewModal from 'components/file_preview_modal';
+
 import {id as pluginId} from './manifest';
-
-import FilePreviewOverride from './components/file_preview_override';
-import FilePreviewModal from './components/file_preview/file_preview_modal';
-
-import {getWopiFilesList} from './actions/wopi';
-import {wopiFilesList} from './selectors';
-import Reducer from './reducers';
 
 export default class Plugin {
     public initialize(registry: PluginRegistry, store: Store<GlobalState>): void {
         registry.registerReducer(Reducer);
         registry.registerRootComponent(FilePreviewModal);
-        registry.registerFilePreviewComponent(
+        const dispatch: ThunkDispatch<GlobalState, undefined, AnyAction> = store.dispatch;
+        dispatch(getWopiFilesList());
+        registry.registerFileDropdownMenuAction(
             (fileInfo: FileInfo) => {
                 const state = store.getState();
                 const wopiFiles = wopiFilesList(state);
                 return Boolean(wopiFiles?.[fileInfo.extension]);
             },
-            FilePreviewOverride,
+            'Edit with Collabora',
+            (fileInfo: FileInfo) => dispatch(showFilePreview(fileInfo)),
         );
-
-        // @ts-ignore ThunkActions dont work properly
-        store.dispatch(getWopiFilesList());
     }
 }
 

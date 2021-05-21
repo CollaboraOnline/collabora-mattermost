@@ -96,7 +96,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 
 // loadWopiFileInfo loads the WOPI file data to memory
 func (p *Plugin) loadWopiFileInfo(wopiAddress string) error {
-	client := p.getHTTPClient()
+	client := p.GetHTTPClient()
 	resp, err := client.Get(wopiAddress + "/hosting/discovery")
 	if err != nil {
 		p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())

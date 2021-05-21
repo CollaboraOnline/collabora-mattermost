@@ -2,14 +2,37 @@ package main
 
 import (
 	"crypto/tls"
+	"io"
 	"math/rand"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/mattermost/mattermost-server/v5/shared/filestore"
 )
+
+func (p *Plugin) getFileBackend() (filestore.FileBackend, error) {
+	license := p.API.GetLicense()
+	serverConfig := p.API.GetUnsanitizedConfig()
+	backend, err := filestore.NewFileBackend(serverConfig.FileSettings.ToFileBackendSettings(license != nil && *license.Features.Compliance))
+	if err != nil {
+		return nil, err
+	}
+	return backend, nil
+}
+
+func (p *Plugin) WriteFile(fr io.Reader, path string) (int64, error) {
+	backend, err := p.getFileBackend()
+	if err != nil {
+		return 0, err
+	}
+
+	result, nErr := backend.WriteFile(fr, path)
+	if nErr != nil {
+		return result, nErr
+	}
+	return result, nil
+}
 
 func GenerateEncryptionPassword() string {
 	rand.Seed(time.Now().UnixNano())
@@ -26,7 +49,7 @@ func GenerateEncryptionPassword() string {
 	return b.String()
 }
 
-func (p *Plugin) getHTTPClient() *http.Client {
+func (p *Plugin) GetHTTPClient() *http.Client {
 	config := p.getConfiguration()
 	customTransport := http.DefaultTransport.(*http.Transport).Clone()
 	if config.DisableCertificateVerification {
@@ -35,18 +58,4 @@ func (p *Plugin) getHTTPClient() *http.Client {
 
 	client := &http.Client{Transport: customTransport}
 	return client
-}
-
-// getAccessTokenFromURI extracts the access_token from the URI
-// We need to do this manually as Mattermost removes the access_token before it reaches the plugin HTTP request parser
-func getAccessTokenFromURI(uri string) (string, error) {
-	parsedURL, err := url.Parse(uri)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to parse uri")
-	}
-	urlValues, parseErr := url.ParseQuery(parsedURL.RawQuery)
-	if parseErr != nil {
-		return "", errors.Wrap(parseErr, "failed to parse raw query")
-	}
-	return urlValues.Get("access_token"), nil
 }
