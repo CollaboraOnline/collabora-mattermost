@@ -8,14 +8,14 @@ This plugin enables Mattermost users to preview and collaboratively edit documen
 
 The plugin will parse the messages that contain attachments and will display a list with the files that can be viewed or edited. The file is automatically saved when editing, so you don’t have to do it manually.
 
-**Note**: This plugin will set the post type "custom_post_with_file" for each post that contains attached files.
-
 Below you can see a list with the supported formats:
 
 - OpenDocument format: .ods, .odt, .odp, .odg etc.
 - Microsoft: .doc, .docx, .xls, .xlsx, .ppt, .pptx etc.
 - Others: .txt, .csv, .gif, .jpg, .jpeg, .png, .svg, .pdf etc.
 
+Please note that files like .pdf, .jpg, .svg, and others can only be viewed and not edited.
+  
 Collabora Online uses a WOPI-like protocol (client) to access the files on your Mattermost server (host). You can read more about it on https://wopi.readthedocs.io. Hence, you will also need a Collabora Online instance to use the plugin.
 You can build your own, or conveniently use a version of our [CODE edition](https://www.collaboraoffice.com/code/).
 
@@ -46,12 +46,14 @@ docker run -t -d -p 127.0.0.1:9980:9980 -p [::1]:9980:9980 -e 'domain=my\\.-loca
 1. You need to make sure SSL is enabled (with local ssl certificate accepted in your browser) or disabled for both Mattermost and CODE.
    If one setup has https enabled and the other not, it will not work.
 
-2. Starting the CODE docker container for the first time will take a while!
+1. Starting the CODE docker container for the first time will take a while!
    `docker run` returns quickly, but you will not be able to actually use it for the next 5 minutes or so.
    Look at `docker logs -f code` for details.
 
-3. Replace the string `my-local-ipaddress` with your local IP address!
+1. Replace the string `my-local-ipaddress` with your local IP address!
    Each `.` of the address must be accompanied by the double-backslash `\\`, thus avoiding misinterpretations.
+
+1. The `domain` environment variable should point to the Mattermost server's IP address and not the Collabora Server.
 
 ## Building the plugin
 
@@ -87,3 +89,7 @@ make deploy
 
 - Q. Failed to read document from storage. Please contact your storage server administrator.  
   A. Make sure you are running both Mattermost and Collabora Server with the same protocol (http/https).
+     Check your Mattermost logs for more information.
+
+- Q. CollaboraOnline Server URL in the system console does not get updated.
+  A. You need to disable and re-enable the plugin for the server URL changes to take effect.

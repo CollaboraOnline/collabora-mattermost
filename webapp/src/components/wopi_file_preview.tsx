@@ -24,18 +24,18 @@ export const WopiFilePreview: FC<Props> = (props: Props) => {
         };
     }, []);
 
+    const fileID = props.fileInfo?.id;
     useEffect(() => {
-        const fileID = props.fileInfo?.id;
         if (fileID) {
             handleWopiFile(fileID);
         }
-    }, [props.fileInfo?.id]);
+    }, [fileID]);
 
-    const handleWopiFile = async (fileID: string) => {
+    const handleWopiFile = async (selectedFileID: string) => {
         //ask the server for the Collabora Online URL & token where the file will be edited
         //and load it into the iframe
         // TODO: Handle this API call failure
-        const fileData = await Client.getCollaboraOnlineURL(fileID);
+        const fileData = await Client.getCollaboraOnlineURL(selectedFileID);
 
         //as the request to Collabora Online should be of POST type, a form is used to submit it.
         (document.getElementById('collabora-submit-form') as HTMLFormElement).action = fileData.url;

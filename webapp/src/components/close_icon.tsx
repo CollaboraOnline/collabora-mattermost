@@ -1,8 +1,10 @@
 import React, {ButtonHTMLAttributes} from 'react';
+import {Button} from 'react-bootstrap';
 
 export default function CloseIcon(props: ButtonHTMLAttributes<unknown>) {
     return (
-        <button
+        <Button
+            type='button'
             {...props}
         >
             <svg
@@ -17,6 +19,6 @@ export default function CloseIcon(props: ButtonHTMLAttributes<unknown>) {
                     d='M18 7.209L16.791 6 12 10.791 7.209 6 6 7.209 10.791 12 6 16.791 7.209 18 12 13.209 16.791 18 18 16.791 13.209 12z'
                 />
             </svg>
-        </button>
+        </Button>
     );
 }

@@ -14,11 +14,10 @@ export const filePreviewModal = (state = initialState, action: AnyAction) => {
             visible: true,
             fileInfo: action.fileInfo,
         };
+
     case Constants.ACTION_TYPES.CLOSE_FILE_PREVIEW:
-        return {
-            visible: false,
-            fileInfo: {},
-        };
+        return initialState;
+
     default:
         return state;
     }
