@@ -1,3 +1,6 @@
+require('core-js/stable');
+require('regenerator-runtime/runtime');
+
 const config = {
     presets: [
         ['@babel/preset-env', {

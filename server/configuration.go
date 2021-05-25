@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	//WopiFiles maps file extension with file action & url
+	// WopiFiles maps file extension with file action & url
 	WopiFiles map[string]WopiFile
 )
 
@@ -109,7 +109,7 @@ func (p *Plugin) loadWopiFileInfo(wopiAddress string) error {
 		return err
 	}
 
-	//wopiData contains the XML from <WOPI>/hosting/discovery
+	// wopiData contains the XML from <WOPI>/hosting/discovery
 	var wopiData WopiDiscovery
 	if err := xml.Unmarshal(body, &wopiData); err != nil {
 		p.API.LogError("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())

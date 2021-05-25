@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//Plugin required by plugin
+// Plugin required by plugin
 type Plugin struct {
 	plugin.MattermostPlugin
 	router            *mux.Router
@@ -17,7 +17,7 @@ type Plugin struct {
 	configuration     *configuration
 }
 
-//OnActivate is called when the plugin is activated
+// OnActivate is called when the plugin is activated
 func (p *Plugin) OnActivate() error {
 	p.EnsureEncryptionPassword()
 	p.router = p.InitAPI()

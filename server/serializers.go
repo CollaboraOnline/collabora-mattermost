@@ -6,16 +6,16 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-//WopiToken is the token used for WOPI authentication.
-//When a user wants to open a file with Collabora Online this token is passed to Collabora Online
-//Collabora Online will use this token when it loads/saves a file
+// WopiToken is the token used for WOPI authentication.
+// When a user wants to open a file with Collabora Online this token is passed to Collabora Online
+// Collabora Online will use this token when it loads/saves a file
 type WopiToken struct {
 	UserID string `json:"userId"`
 	FileID string `json:"fileId"`
 	jwt.StandardClaims
 }
 
-//WopiDiscovery represents the XML from <WOPI>/hosting/discovery
+// WopiDiscovery represents the XML from <WOPI>/hosting/discovery
 type WopiDiscovery struct {
 	XMLName xml.Name `xml:"wopi-discovery"`
 	Text    string   `xml:",chardata"`
@@ -35,7 +35,7 @@ type WopiDiscovery struct {
 	} `xml:"net-zone"`
 }
 
-// WopiCheckFileInfo is the required response from http://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html#checkfileinfo
+// WopiCheckFileInfo is the required response from http:// wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html#checkfileinfo
 type WopiCheckFileInfo struct {
 	// The string name of the file, including extension, without a path. Used for display in user interface (UI), and determining the extension of the file.
 	BaseFileName string `json:"BaseFileName"`
@@ -59,16 +59,16 @@ type WopiCheckFileInfo struct {
 	UserCanNotWriteRelative bool `json:"UserCanNotWriteRelative"`
 }
 
-//WopiFile is used top map file extension with the action & url
+// WopiFile is used top map file extension with the action & url
 type WopiFile struct {
-	URL    string //WOPI url to view/edit the file
-	Action string //edit or view
+	URL    string // WOPI url to view/edit the file
+	Action string // edit or view
 }
 
-//ClientFileInfo contains file information sent to the client
+// ClientFileInfo contains file information sent to the client
 type ClientFileInfo struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Extension string `json:"extension"`
-	Action    string `json:"action"` //view or edit
+	Action    string `json:"action"` // view or edit
 }

@@ -12,12 +12,12 @@ const (
 )
 
 var (
-	//if the plugin fails to save password to KV, this fallback password will be used
+	// if the plugin fails to save password to KV, this fallback password will be used
 	fallbackPassword = ""
 )
 
-//EnsureEncryptionPassword generates a password for encrypting the tokens, if it does not exist
-//This method is called from plugin.go, and will generate a password only the first time when the plugin is loaded
+// EnsureEncryptionPassword generates a password for encrypting the tokens, if it does not exist
+// This method is called from plugin.go, and will generate a password only the first time when the plugin is loaded
 func (p *Plugin) EnsureEncryptionPassword() {
 	password := GenerateEncryptionPassword()
 	ok, err := p.KVEnsure(kvEncryptionPasswordKey, []byte(password))
@@ -32,7 +32,7 @@ func (p *Plugin) EnsureEncryptionPassword() {
 }
 
 func (p *Plugin) getEncryptionPassword() []byte {
-	//if the fallbackPassword is set this means the plugin cannot read from KV pair
+	// if the fallbackPassword is set this means the plugin cannot read from KV pair
 	if fallbackPassword != "" {
 		return []byte(fallbackPassword)
 	}
@@ -41,7 +41,7 @@ func (p *Plugin) getEncryptionPassword() []byte {
 	return tokenSignPasswordByte
 }
 
-//EncodeToken creates a token for WOPI
+// EncodeToken creates a token for WOPI
 func (p *Plugin) EncodeToken(userID string, fileID string) string {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), &WopiToken{
 		UserID: userID,
@@ -55,7 +55,7 @@ func (p *Plugin) EncodeToken(userID string, fileID string) string {
 	return signedString
 }
 
-//DecodeToken decodes a token string an returns WopiToken and isValid
+// DecodeToken decodes a token string an returns WopiToken and isValid
 func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	wopiToken := WopiToken{}
 	_, err := jwt.ParseWithClaims(tokenString, &wopiToken, func(token *jwt.Token) (interface{}, error) {
