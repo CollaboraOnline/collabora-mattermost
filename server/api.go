@@ -31,9 +31,11 @@ func (p *Plugin) InitAPI() *mux.Router {
 	s.HandleFunc("/fileInfo", handleAuthRequired(p.parseFileIDs)).Methods(http.MethodGet)
 	s.HandleFunc("/wopiFileList", handleAuthRequired(p.returnWopiFileList)).Methods(http.MethodGet)
 	s.HandleFunc("/collaboraURL", handleAuthRequired(p.returnCollaboraOnlineFileURL)).Methods(http.MethodGet)
-	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}", p.returnWopiFileInfo).Methods(http.MethodGet)
+	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}", p.getWopiFileInfo).Methods(http.MethodGet)
 	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}/contents", p.getWopiFileContents).Methods(http.MethodGet)
-	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}/contents", p.saveWopiFileContents).Methods(http.MethodPost)
+	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}/edit", p.getWopiFileInfoEditable).Methods(http.MethodGet)
+	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}/edit/contents", p.getWopiFileContents).Methods(http.MethodGet)
+	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}/edit/contents", p.saveWopiFileContents).Methods(http.MethodPost)
 
 	// 404 handler
 	r.Handle("{anything:.*}", http.NotFoundHandler())
@@ -146,7 +148,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	// retrieve fileID and file info
 	fileID := r.URL.Query().Get("file_id")
 	if fileID == "" {
-		p.API.LogError("file_id query parameter missing!")
+		p.API.LogError("Failed to retrieve file. `file_id` query parameter missing!")
 		http.Error(w, "missing file_id parameter", http.StatusBadRequest)
 		return
 	}
@@ -158,7 +160,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	wopiURL := WopiFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + p.getBaseAPIURL() + "/wopi/files/" + fileID
+	wopiURL := WopiFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + (p.getBaseAPIURL() + "/wopi/files/" + fileID)
 	wopiToken := p.EncodeToken(r.Header.Get(HeaderMattermostUserID), fileID)
 
 	response := struct {
@@ -258,9 +260,42 @@ func (p *Plugin) saveWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	returnStatusOK(w)
 }
 
-// returnWopiFileInfo returns the file information, used by Collabora Online
+// generateWopiFileInfo generates the file information, used by Collabora Online
 // see: http:// wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html#checkfileinfo
-func (p *Plugin) returnWopiFileInfo(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) generateWopiFileInfo(wopiToken WopiToken, userCanEdit bool) (*WopiCheckFileInfo, error) {
+	user, userErr := p.API.GetUser(wopiToken.UserID)
+	if userErr != nil {
+		p.API.LogError("Error retrieving user. Token UserID is corrupted or the user doesn't exist.", "TokenUserID", wopiToken.UserID, "Error", userErr.Error())
+		return nil, userErr
+	}
+
+	fileInfo, fileInfoErr := p.API.GetFileInfo(wopiToken.FileID)
+	if fileInfoErr != nil {
+		p.API.LogError("Error retrieving file info", "FileID", wopiToken.FileID, "Error", fileInfoErr.Error())
+		return nil, fileInfoErr
+	}
+
+	post, postErr := p.API.GetPost(fileInfo.PostId)
+	if postErr != nil {
+		p.API.LogError("Error retrieving file's post.", "PostID", fileInfo.PostId, "Error", postErr.Error())
+		return nil, postErr
+	}
+
+	wopiFileInfo := &WopiCheckFileInfo{
+		BaseFileName:            fileInfo.Name,
+		Size:                    fileInfo.Size,
+		OwnerID:                 post.UserId,
+		UserID:                  user.Id,
+		UserFriendlyName:        user.GetDisplayName(model.SHOW_FULLNAME),
+		UserCanWrite:            userCanEdit,
+		UserCanNotWriteRelative: true,
+	}
+
+	return wopiFileInfo, nil
+}
+
+// getWopiFileInfo returns the file information, used by Collabora Online
+func (p *Plugin) getWopiFileInfo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileID := params["fileID"]
 
@@ -271,35 +306,34 @@ func (p *Plugin) returnWopiFileInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, userErr := p.API.GetUser(wopiToken.UserID)
-	if userErr != nil {
-		p.API.LogError("Error retrieving user. Token UserID is corrupted or the user doesn't exist.", "Error", userErr.Error())
-		http.Error(w, userErr.Error(), http.StatusInternalServerError)
+	wopiFileInfo, wopiFileInfoErr := p.generateWopiFileInfo(wopiToken, false)
+	if wopiFileInfoErr != nil {
+		http.Error(w, wopiFileInfoErr.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fileInfo, fileInfoErr := p.API.GetFileInfo(fileID)
-	if fileInfoErr != nil {
-		p.API.LogError("Error retrieving file info, fileID: "+fileID, "Error", fileInfoErr.Error())
-		http.Error(w, fileInfoErr.Error(), http.StatusInternalServerError)
+	responseJSON, _ := json.Marshal(wopiFileInfo)
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(responseJSON)
+}
+
+// getWopiFileInfoEditable returns the file information, used by Collabora Online
+// with editable set to true
+func (p *Plugin) getWopiFileInfoEditable(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	fileID := params["fileID"]
+
+	wopiToken, tokenErr := p.GetWopiTokenFromURI(r.RequestURI)
+	if tokenErr != nil || wopiToken.FileID != fileID {
+		p.API.LogError(fmt.Sprintf("Invalid token. Error: %v", tokenErr))
+		http.Error(w, "Invalid token.", http.StatusBadRequest)
 		return
 	}
 
-	post, postErr := p.API.GetPost(fileInfo.PostId)
-	if postErr != nil {
-		p.API.LogError("Error retrieving file's post, postId: "+fileInfo.PostId, "Error", postErr.Error())
-		http.Error(w, postErr.Error(), http.StatusInternalServerError)
+	wopiFileInfo, wopiFileInfoErr := p.generateWopiFileInfo(wopiToken, true)
+	if wopiFileInfoErr != nil {
+		http.Error(w, wopiFileInfoErr.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	wopiFileInfo := WopiCheckFileInfo{
-		BaseFileName:            fileInfo.Name,
-		Size:                    fileInfo.Size,
-		OwnerID:                 post.UserId,
-		UserID:                  user.Id,
-		UserFriendlyName:        user.GetDisplayName(model.SHOW_FULLNAME),
-		UserCanWrite:            true,
-		UserCanNotWriteRelative: true,
 	}
 
 	responseJSON, _ := json.Marshal(wopiFileInfo)

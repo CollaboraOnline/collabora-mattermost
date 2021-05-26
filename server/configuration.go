@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -12,6 +13,8 @@ import (
 var (
 	// WopiFiles maps file extension with file action & url
 	WopiFiles map[string]WopiFile
+
+	validEncryptionKeyChars = regexp.MustCompile("[^a-zA-Z0-9]+")
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -26,8 +29,9 @@ var (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type configuration struct {
-	WOPIAddress                    string
-	DisableCertificateVerification bool
+	WOPIAddress   string
+	SkipSSLVerify bool
+	EncryptionKey string
 }
 
 // Clone deep copies the configuration
@@ -40,6 +44,7 @@ func (c *configuration) ProcessConfiguration() error {
 	// trim trailing slash or spaces from the WOPI address, if needed
 	c.WOPIAddress = strings.TrimSpace(c.WOPIAddress)
 	c.WOPIAddress = strings.Trim(c.WOPIAddress, "/")
+	c.EncryptionKey = validEncryptionKeyChars.ReplaceAllString(c.EncryptionKey, "")
 
 	return nil
 }
@@ -48,6 +53,10 @@ func (c *configuration) ProcessConfiguration() error {
 func (c *configuration) IsValid() error {
 	if !strings.HasPrefix(c.WOPIAddress, "http") {
 		return errors.New("please provide the WOPIAddress")
+	}
+
+	if len(c.EncryptionKey) == 0 {
+		return errors.New("please generate EncryptionKey from plugin system console settings")
 	}
 
 	return nil
@@ -94,8 +103,8 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	p.configuration = configuration
 }
 
-// loadWopiFileInfo loads the WOPI file data to memory
-func (p *Plugin) loadWopiFileInfo(wopiAddress string) error {
+// LoadWopiFileInfo loads the WOPI file data to memory
+func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 	client := p.GetHTTPClient()
 	resp, err := client.Get(wopiAddress + "/hosting/discovery")
 	if err != nil {
