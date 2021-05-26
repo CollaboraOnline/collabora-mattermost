@@ -2,8 +2,12 @@
     "id": "com.collaboraonline.mattermost",
     "name": "Collabora Online",
     "description": "Allows users to edit/view documents with the help of Collabora Online.",
+    "homepage_url": "https://github.com/CollaboraOnline/collabora-mattermost",
+    "support_url": "https://github.com/CollaboraOnline/collabora-mattermost/issues",
+    "release_notes_url": "https://github.com/CollaboraOnline/collabora-mattermost/releases/latest",
+    "icon_path": "assets/icons/icon.svg",
     "version": "1.1.0",
-    "min_server_version": "5.11.0",
+    "min_server_version": "5.12.0",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -20,17 +24,26 @@
         "settings": [
             {
                 "key": "WOPIAddress",
-                "display_name": "Collabora Online Address:",
                 "type": "text",
+                "display_name": "Collabora Online Address:",
                 "help_text": "Collabora Online requires a separate server acting as a WOPI-like Client to provide editing capabilities. Please configure a Collabora Online server to start editing documents.",
                 "placeholder": "URL",
                 "default": ""
             },
             {
-                "key": "DisableCertificateVerification",
-                "display_name": "Disable certificate verification (insecure):",
+                "key": "SkipSSLVerify",
                 "type": "bool",
+                "display_name": "Disable certificate verification (insecure):",
                 "help_text": "Enable if your Collabora Online server uses a self signed certificate."
+            },
+            {
+                "key": "EncryptionKey",
+                "display_name": "Token Encryption Key:",
+                "type": "generated",
+                "help_text": "The encryption key used to encrypt Collabora Online server access tokens.",
+                "regenerate_help_text": "Regenerates the encryption key for Collabora Online server. Regenerating this key invalidates any existing wopi file preview/edit sessions.",
+                "placeholder": "",
+                "default": null
             }
         ]
     }

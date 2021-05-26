@@ -7,49 +7,16 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	kvEncryptionPasswordKey = "encryptionPassword"
-)
-
-var (
-	// if the plugin fails to save password to KV, this fallback password will be used
-	fallbackPassword = ""
-)
-
-// EnsureEncryptionPassword generates a password for encrypting the tokens, if it does not exist
-// This method is called from plugin.go, and will generate a password only the first time when the plugin is loaded
-func (p *Plugin) EnsureEncryptionPassword() {
-	password := GenerateEncryptionPassword()
-	ok, err := p.KVEnsure(kvEncryptionPasswordKey, []byte(password))
-	if err != nil {
-		p.API.LogError("Failed to set an encryption password for the plugin, fallback password will be used.", "Error", err.Error())
-		fallbackPassword = password
-		return
-	}
-	if !ok {
-		p.API.LogWarn("Skipped write since already set by another plugin instance.")
-	}
-}
-
-func (p *Plugin) getEncryptionPassword() []byte {
-	// if the fallbackPassword is set this means the plugin cannot read from KV pair
-	if fallbackPassword != "" {
-		return []byte(fallbackPassword)
-	}
-
-	tokenSignPasswordByte, _ := p.API.KVGet(kvEncryptionPasswordKey)
-	return tokenSignPasswordByte
-}
-
 // EncodeToken creates a token for WOPI
 func (p *Plugin) EncodeToken(userID string, fileID string) string {
+	config := p.getConfiguration()
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), &WopiToken{
 		UserID: userID,
 		FileID: fileID,
 	})
-	signedString, err := token.SignedString(p.getEncryptionPassword())
+	signedString, err := token.SignedString([]byte(config.EncryptionKey))
 	if err != nil {
-		p.API.LogError("Failed to encode WOPI token", "Error", err.Error())
+		p.API.LogError("Failed to encode WOPI token.", "Error", err.Error())
 		return ""
 	}
 	return signedString
@@ -57,13 +24,14 @@ func (p *Plugin) EncodeToken(userID string, fileID string) string {
 
 // DecodeToken decodes a token string an returns WopiToken and isValid
 func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
+	config := p.getConfiguration()
 	wopiToken := WopiToken{}
 	_, err := jwt.ParseWithClaims(tokenString, &wopiToken, func(token *jwt.Token) (interface{}, error) {
-		return p.getEncryptionPassword(), nil
+		return []byte(config.EncryptionKey), nil
 	})
 
 	if err != nil {
-		p.API.LogError("Failed to decode WOPI token", "Error", err.Error())
+		p.API.LogError("Failed to decode WOPI token.", "Error", err.Error())
 		return WopiToken{}, false
 	}
 

@@ -37,7 +37,10 @@ const FilePreviewModal: FC = () => {
                 fileInfo={fileInfo}
                 onClose={handleClose}
             />
-            <WopiFilePreview fileInfo={fileInfo}/>
+            <WopiFilePreview
+                fileInfo={fileInfo}
+                editable={true}
+            />
         </FullScreenModal>
     );
 };

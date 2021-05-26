@@ -23,3 +23,25 @@
 .FullScreenModal .collabora-action-button i.fa {
     margin-right: 0;
 }
+
+.wopi-iframe-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    background: #f6f6f6;
+    border-top: none;
+    display: flex;
+    flex: 1 1 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.wopi-iframe {
+    height: calc(100vh - 69px);
+    width: calc(90vw - 5px);
+    border: none;
+}
+
+.FullScreenModal .wopi-iframe {
+    width: calc(100vw - 5px);
+}

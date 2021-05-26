@@ -19,7 +19,6 @@ type Plugin struct {
 
 // OnActivate is called when the plugin is activated
 func (p *Plugin) OnActivate() error {
-	p.EnsureEncryptionPassword()
 	p.router = p.InitAPI()
 	return nil
 }
@@ -42,7 +41,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to validate configuration")
 	}
 
-	if err := p.loadWopiFileInfo(configuration.WOPIAddress); err != nil {
+	if err := p.LoadWopiFileInfo(configuration.WOPIAddress); err != nil {
 		return errors.Wrap(err, "could not load wopi file info")
 	}
 
