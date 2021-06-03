@@ -1,12 +1,12 @@
 import {AnyAction, Dispatch} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 
-import {ActionResult} from 'mattermost-redux/types/actions';
+import {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
 
 import Client from '../client';
 import Constants from '../constants';
 
-export function getCollaboraFileURL(fileID: string) {
+export function getCollaboraFileURL(fileID: string): DispatchFunc {
     return async () => {
         let data = null;
         try {
