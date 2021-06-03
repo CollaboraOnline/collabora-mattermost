@@ -1,8 +1,10 @@
-import React, {FC, useCallback, useEffect} from 'react';
+import React, {FC, useCallback, useEffect, useState} from 'react';
+
+import {useDispatch} from 'react-redux';
 
 import {FileInfo} from 'mattermost-redux/types/files';
 
-import Client from 'client';
+import {getCollaboraFileURL} from 'actions/wopi';
 
 type Props = {
     editable: boolean;
@@ -10,17 +12,33 @@ type Props = {
 }
 
 export const WopiFilePreview: FC<Props> = (props: Props) => {
+    const dispatch = useDispatch();
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const handleWopiFile = useCallback(async (selectedFileID: string) => {
         //ask the server for the Collabora Online URL & token where the file will be edited
         //and load it into the iframe
-        // TODO: Handle this API call failure
-        const fileData = await Client.getCollaboraOnlineURL(selectedFileID);
+
+        setLoading(true);
+        setError(false);
+        const dispatchResult = await dispatch(getCollaboraFileURL(selectedFileID) as any);
+        if ('error' in dispatchResult) {
+            setLoading(false);
+            setError(true);
+            return;
+        }
+
+        setLoading(false);
+        setError(false);
+
+        const fileData = dispatchResult.data as {url: string, access_token: string};
 
         //as the request to Collabora Online should be of POST type, a form is used to submit it.
         (document.getElementById('collabora-submit-form') as HTMLFormElement).action = fileData.url + (props.editable ? '/edit' : '');
-        (document.getElementById('collabora-form-access-token')as HTMLInputElement).value = fileData.access_token;
+        (document.getElementById('collabora-form-access-token') as HTMLInputElement).value = fileData.access_token;
         (document.getElementById('collabora-submit-form') as HTMLFormElement).submit();
-    }, [props.editable]);
+    }, [dispatch, props.editable]);
 
     useEffect(() => {
         const fileID = props.fileInfo?.id;
@@ -28,6 +46,30 @@ export const WopiFilePreview: FC<Props> = (props: Props) => {
             handleWopiFile(fileID);
         }
     }, [handleWopiFile, props.fileInfo]);
+
+    if (loading) {
+        return (
+            <span
+                id='loadingSpinner'
+                className={'wopi-loading-spinner'}
+            >
+                <i
+                    className='fa fa-spinner fa-fw fa-pulse spinner'
+                    title={'Loading Icon'}
+                />
+            </span>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className='alert wopi-error'>
+                <i className='fa fa-warning wopi-error-icon'/>
+                <div>{'We\'re sorry, a file preview is not available.'}</div>
+                <div>{'Please download to view the file.'}</div>
+            </div>
+        );
+    }
 
     return (
         <div className='wopi-iframe-container'>
