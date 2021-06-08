@@ -23,7 +23,7 @@ export const WopiFilePreview: FC<Props> = (props: Props) => {
         setLoading(true);
         setError(false);
         const dispatchResult = await dispatch(getCollaboraFileURL(selectedFileID) as any);
-        if ('error' in dispatchResult) {
+        if (dispatchResult.error) {
             setLoading(false);
             setError(true);
             return;
