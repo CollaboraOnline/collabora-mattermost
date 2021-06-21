@@ -4,10 +4,11 @@ import {FileInfo} from 'mattermost-redux/types/files';
 
 import Constants from '../constants';
 
-export const showFilePreview = (fileInfo: FileInfo) => (dispatch: Dispatch) => {
+export const showFilePreview = (fileInfo: FileInfo, editable: boolean) => (dispatch: Dispatch) => {
     dispatch({
         type: Constants.ACTION_TYPES.SHOW_FILE_PREVIEW,
         fileInfo,
+        editable,
     });
 };
 

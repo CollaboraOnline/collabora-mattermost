@@ -12,8 +12,6 @@ import Client from 'client';
 
 import CloseIcon from './close_icon';
 
-import './styles.css';
-
 type Props = {
     fileInfo: FileInfo;
     onClose: () => void;

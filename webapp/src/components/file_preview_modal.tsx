@@ -14,11 +14,12 @@ import FilePreviewHeader from 'components/file_preview_header';
 type FilePreviewModalSelector = {
     visible: boolean;
     fileInfo: FileInfo;
+    editable: boolean;
 }
 
 const FilePreviewModal: FC = () => {
     const dispatch = useDispatch();
-    const {visible, fileInfo}: FilePreviewModalSelector = useSelector(filePreviewModal);
+    const {visible, fileInfo, editable = false}: FilePreviewModalSelector = useSelector(filePreviewModal);
 
     const handleClose = useCallback((e?: Event): void => {
         if (e && e.preventDefault) {
@@ -39,7 +40,7 @@ const FilePreviewModal: FC = () => {
             />
             <WopiFilePreview
                 fileInfo={fileInfo}
-                editable={true}
+                editable={editable}
             />
         </FullScreenModal>
     );

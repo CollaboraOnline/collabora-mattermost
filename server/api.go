@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
@@ -28,6 +29,7 @@ func (p *Plugin) InitAPI() *mux.Router {
 	s := r.PathPrefix("/api/v1").Subrouter()
 
 	// Add the custom plugin routes here
+	s.HandleFunc("/channels/{channelID:[A-Za-z0-9_-]+}/files/new", handleAuthRequired(p.createFileFromTemplate)).Methods(http.MethodPost).Queries("name", "{name}", "ext", "{ext}")
 	s.HandleFunc("/fileInfo", handleAuthRequired(p.parseFileIDs)).Methods(http.MethodGet)
 	s.HandleFunc("/wopiFileList", handleAuthRequired(p.returnWopiFileList)).Methods(http.MethodGet)
 	s.HandleFunc("/collaboraURL", handleAuthRequired(p.returnCollaboraOnlineFileURL)).Methods(http.MethodGet)
@@ -92,6 +94,75 @@ func handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request))
 
 		handleFunc(w, r)
 	}
+}
+
+// createFileFromTemplate creates a new file from template in the given channel
+func (p *Plugin) createFileFromTemplate(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	channelID := params["channelID"]
+	_, channelErr := p.API.GetChannel(channelID)
+	if channelErr != nil {
+		p.API.LogError("Invalid or missing channel ID: ", channelErr.Error(), "channelID", channelID)
+		http.Error(w, channelErr.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fileName := r.URL.Query().Get("name")
+	if fileName == "" {
+		http.Error(w, "missing filename", http.StatusBadRequest)
+		return
+	}
+
+	fileExt := r.URL.Query().Get("ext")
+	if fileExt == "" {
+		http.Error(w, "missing file extension", http.StatusBadRequest)
+		return
+	}
+
+	templateName, templateFound := TemplateFromExt[fileExt]
+	if !templateFound {
+		p.API.LogWarn("no template found for file extension: " + fileExt)
+		http.Error(w, "template not found for provided file extension", http.StatusBadRequest)
+		return
+	}
+
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		p.API.LogWarn("Failed to get bundle path.", "Error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	templateDir := filepath.Join(bundlePath, "assets", "templates")
+	tmplPath := path.Join(templateDir, templateName)
+
+	templateFileData, err := ioutil.ReadFile(tmplPath)
+	if err != nil {
+		p.API.LogError("Failed to get the template content.", "Error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fileInfo, appErr := p.API.UploadFile(templateFileData, channelID, fileName+"."+fileExt)
+	if appErr != nil {
+		p.API.LogError("Failed to upload the template file.", "Error", appErr.Error())
+		http.Error(w, appErr.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	post := &model.Post{
+		ChannelId: channelID,
+		UserId:    r.Header.Get(HeaderMattermostUserID),
+		FileIds:   model.StringArray{fileInfo.Id},
+	}
+
+	if _, appErr := p.API.CreatePost(post); appErr != nil {
+		p.API.LogError("Failed to create post with the template file.", "Error", appErr.Error())
+		http.Error(w, appErr.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	returnStatusOK(w)
 }
 
 // parseFileIDs sends the file info to the client (name, extension and id) for each file
