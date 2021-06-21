@@ -151,9 +151,15 @@ make deploy
 
 ## Troubleshooting
 
+- Q. If you get `Connection Refused` error while trying to preview files when running CODE docker image locally.  
+  A. Use docker host network:
+     ```shell
+     docker run -t -d --network host -e 'domain=localhost' -e "username=admin" -e "password=secret" -e "DONT_GEN_SSL_CERT=true" -e "extra_params=--o:ssl.enable=false" --restart always --cap-add MKNOD --name=code collabora/code
+     ```
+
 - Q. Failed to read document from storage. Please contact your storage server administrator.  
   A. Make sure you are running both Mattermost and Collabora Server with the same protocol (http/https).
      Check your Mattermost logs for more information.
 
-- Q. CollaboraOnline Server URL in the system console does not get updated.
+- Q. CollaboraOnline Server URL in the system console does not get updated.  
   A. You may need to disable and re-enable the plugin for the server URL (or other system console settings) changes to take effect.

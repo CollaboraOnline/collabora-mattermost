@@ -15,6 +15,11 @@ export default class Client {
         this.baseURL = `/plugins/${pluginId}/api/v1`;
     }
 
+    createFileFromTemplate = (channelID: string, name: string, ext: string) => {
+        const params = {name, ext};
+        return this.doPost(`${this.baseURL}/channels/${channelID}/files/new${this.buildQueryString(params)}`);
+    };
+
     getFileUrl = (fileID: string) => {
         return `${this.apiURL}/files/${fileID}`;
     };
@@ -41,7 +46,7 @@ export default class Client {
         return this.doFetch(url, options);
     }
 
-    doPost = async (url: string, body: BodyInit, headers: Record<string, string> = {}) => {
+    doPost = async (url: string, body?: BodyInit, headers: Record<string, string> = {}) => {
         const options = {
             method: 'post',
             body: JSON.stringify(body),

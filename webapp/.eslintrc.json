@@ -333,7 +333,10 @@
     ],
     "no-self-compare": 2,
     "no-sequences": 2,
-    "no-shadow": [
+    // override no-shadow rule using typescript definition
+    // note you must disable the base rule as it can report incorrect errors
+    "no-shadow": 0,
+    "@typescript-eslint/no-shadow": [
       2,
       {
         "hoist": "functions"
