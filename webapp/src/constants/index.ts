@@ -14,8 +14,16 @@ export const FILE_TEMPLATES: Dictionary<string[]> = {
     [TEMPLATE_TYPES.SPREADSHEET]: ['xlsx', 'ods'],
 };
 
+export const CHANNEL_TYPES = {
+    CHANNEL_OPEN: 'O',
+    CHANNEL_PRIVATE: 'P',
+    CHANNEL_DIRECT: 'D',
+    CHANNEL_GROUP: 'G',
+};
+
 export default Object.freeze({
     ACTION_TYPES,
+    CHANNEL_TYPES,
     TEMPLATE_TYPES,
     FILE_TEMPLATES,
 });
