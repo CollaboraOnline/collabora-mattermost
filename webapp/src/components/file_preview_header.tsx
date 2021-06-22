@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {useSelector} from 'react-redux';
-
+import clsx from 'clsx';
 import {Button} from 'react-bootstrap';
 
 import {FileInfo} from 'mattermost-redux/types/files';
@@ -15,9 +15,11 @@ import CloseIcon from './close_icon';
 type Props = {
     fileInfo: FileInfo;
     onClose: () => void;
+    editable: boolean;
+    toggleEditing: () => void;
 }
 
-export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose}: Props) => {
+export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggleEditing}: Props) => {
     const post = useSelector((state: GlobalState) => getPost(state, fileInfo.post_id || ''));
     const channel = useSelector((state: GlobalState) => getChannel(state, post?.channel_id));
     let channelName: React.ReactNode = channel?.display_name || '';
@@ -93,32 +95,13 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose}: Props) => {
                         </div>
                     </div>
                 </div>
-                <div
-                    id='headerActions'
-                    style={{
-                        flex: '0 0 auto',
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: 12,
-                    }}
-                >
+                <div className='collabora-header-actions'>
                     <Button
                         bsSize='large'
                         bsStyle='large'
                         title='Download'
                         aria-label='Download'
-                        className='collabora-action-button'
-                        style={{
-                            border: 0,
-                            width: 40,
-                            height: 40,
-                            padding: 4,
-                            borderRadius: 4,
-                            marginBottom: 5,
-                            alignItems: 'center',
-                            display: 'inline-flex',
-                            justifyContent: 'center',
-                        }}
+                        className='collabora-header-action-button'
                         href={Client.getFileUrl(fileInfo.id)}
                         target='_blank'
                         rel='noopener noreferrer'
@@ -126,27 +109,31 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose}: Props) => {
                     >
                         <i className='fa fa-cloud-download'/>
                     </Button>
-                    <div
-                        id='separator'
-                        style={{
-                            width: 1,
-                            height: 40,
-                            backgroundColor: '#e1e1e1',
-                            margin: '0 8px 6px',
-                        }}
-                    />
+                    <Button
+                        bsSize='large'
+                        bsStyle='large'
+                        onClick={toggleEditing}
+                        className='collabora-header-action-button'
+                        title={`${editable ? 'Lock' : 'Unlock'} Editing`}
+                        aria-label={`${editable ? 'Lock' : 'Unlock'} Editing`}
+                    >
+                        <i
+                            className={clsx(
+                                'fa',
+                                {
+                                    'fa-lock': !editable,
+                                    'fa-unlock': editable,
+                                },
+                            )}
+                        />
+                    </Button>
+                    <div className='collabora-header-actions-separator'/>
                     <CloseIcon
                         id='closeIcon'
                         title='Close'
                         aria-label='Close'
-                        className='close-x'
+                        className='close-x collabora-header-action-button'
                         onClick={onClose}
-                        style={{
-                            position: 'relative',
-                            top: 'unset',
-                            right: 'unset',
-                            marginBottom: 5,
-                        }}
                     />
                 </div>
             </div>

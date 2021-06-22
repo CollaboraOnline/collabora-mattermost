@@ -1,5 +1,39 @@
+.collabora-header-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+}
+
+.collabora-header-actions-separator {
+    width: 1px;
+    height: 40px;
+    background-color: #e1e1e1;
+    margin: 0 8px 6px;
+}
+
+.collabora-header-action-button {
+    border: 0;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    background-color: unset;
+}
+
+.FullScreenModal.FullScreenModal--compact .close-x.collabora-header-action-button {
+    position: relative;
+    top: unset;
+    right: unset;
+    margin-bottom: 5px;
+}
+
 .FullScreenModal .close-x:focus,
-.FullScreenModal .collabora-action-button:focus {
+.FullScreenModal .collabora-header-action-button:focus {
     outline: 0;
 }
 
@@ -7,20 +41,20 @@
     fill: #626262;
 }
 
-.FullScreenModal .collabora-action-button {
+.FullScreenModal .collabora-header-action-button {
     color: #626262 !important;
 }
 
-.FullScreenModal .collabora-action-button:hover {
+.FullScreenModal .collabora-header-action-button:hover {
     background-color: #e4e4e4;
 }
 
-.FullScreenModal .collabora-action-button:active {
+.FullScreenModal .collabora-header-action-button:active {
     background-color: #c4ccce;
     /*border: 1px solid #37768e;*/
 }
 
-.FullScreenModal .collabora-action-button i.fa {
+.FullScreenModal .collabora-header-action-button i.fa {
     margin-right: 0;
 }
 
