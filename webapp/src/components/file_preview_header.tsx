@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import clsx from 'clsx';
 import {Button} from 'react-bootstrap';
@@ -9,6 +9,8 @@ import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {getChannel} from 'mattermost-redux/selectors/entities/channels';
 
 import Client from 'client';
+
+import {CHANNEL_TYPES} from '../constants';
 
 import CloseIcon from './close_icon';
 
@@ -22,12 +24,18 @@ type Props = {
 export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggleEditing}: Props) => {
     const post = useSelector((state: GlobalState) => getPost(state, fileInfo.post_id || ''));
     const channel = useSelector((state: GlobalState) => getChannel(state, post?.channel_id));
-    let channelName: React.ReactNode = channel?.display_name || '';
-    if (channel?.type === 'D') {
-        channelName = 'Direct Message';
-    } else if (channel?.type === 'G') {
-        channelName = 'Group Message';
-    }
+    const channelName: React.ReactNode = useMemo(() => {
+        switch (channel.type) {
+        case CHANNEL_TYPES.CHANNEL_DIRECT:
+            return 'Direct Message';
+
+        case CHANNEL_TYPES.CHANNEL_GROUP:
+            return 'Group Message';
+
+        default:
+            return channel?.display_name || '';
+        }
+    }, [channel]);
 
     return (
         <>
@@ -127,6 +135,7 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggl
                             )}
                         />
                     </Button>
+
                     <div className='collabora-header-actions-separator'/>
                     <CloseIcon
                         id='closeIcon'
