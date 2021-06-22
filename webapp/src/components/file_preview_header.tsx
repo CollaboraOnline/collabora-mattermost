@@ -25,6 +25,10 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggl
     const post = useSelector((state: GlobalState) => getPost(state, fileInfo.post_id || ''));
     const channel = useSelector((state: GlobalState) => getChannel(state, post?.channel_id));
     const channelName: React.ReactNode = useMemo(() => {
+        if (!channel) {
+            return '';
+        }
+
         switch (channel.type) {
         case CHANNEL_TYPES.CHANNEL_DIRECT:
             return 'Direct Message';
@@ -33,7 +37,7 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggl
             return 'Group Message';
 
         default:
-            return channel?.display_name || '';
+            return channel.display_name;
         }
     }, [channel]);
 
