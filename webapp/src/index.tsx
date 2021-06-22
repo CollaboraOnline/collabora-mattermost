@@ -45,15 +45,8 @@ export default class Plugin {
         // ignore if registerFileDropdownMenuAction method does not exist
         registry.registerFileDropdownMenuAction?.(
             this.shouldShowPreview.bind(null, store),
-            'View with Collabora',
-            (fileInfo: FileInfo) => dispatch(showFilePreview(fileInfo, false)),
-        );
-
-        // ignore if registerFileDropdownMenuAction method does not exist
-        registry.registerFileDropdownMenuAction?.(
-            this.shouldShowPreview.bind(null, store),
-            'Edit with Collabora',
-            (fileInfo: FileInfo) => dispatch(showFilePreview(fileInfo, true)),
+            'Open with Collabora',
+            (fileInfo: FileInfo) => dispatch(showFilePreview(fileInfo)),
         );
 
         registry.registerFileUploadMethod(
@@ -61,7 +54,6 @@ export default class Plugin {
             () => dispatch(showFileCreateModal(TEMPLATE_TYPES.DOCUMENT)),
             'New document',
         );
-
         registry.registerFileUploadMethod(
             <span className='fa wopi-file-upload-icon icon-filetype-spreadsheet'/>,
             () => dispatch(showFileCreateModal(TEMPLATE_TYPES.SPREADSHEET)),

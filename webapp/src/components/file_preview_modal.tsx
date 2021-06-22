@@ -1,4 +1,4 @@
-import React, {FC, useCallback} from 'react';
+import React, {FC, useCallback, useState} from 'react';
 
 import {FileInfo} from 'mattermost-redux/types/files';
 
@@ -14,12 +14,15 @@ import FilePreviewHeader from 'components/file_preview_header';
 type FilePreviewModalSelector = {
     visible: boolean;
     fileInfo: FileInfo;
-    editable: boolean;
 }
 
 const FilePreviewModal: FC = () => {
     const dispatch = useDispatch();
-    const {visible, fileInfo, editable = false}: FilePreviewModalSelector = useSelector(filePreviewModal);
+    const {visible, fileInfo}: FilePreviewModalSelector = useSelector(filePreviewModal);
+    const [editable, setEditable] = useState(false);
+    const toggleEditing = useCallback(() => {
+        setEditable((prevState) => !prevState);
+    }, [setEditable]);
 
     const handleClose = useCallback((e?: Event): void => {
         if (e && e.preventDefault) {
@@ -37,6 +40,8 @@ const FilePreviewModal: FC = () => {
             <FilePreviewHeader
                 fileInfo={fileInfo}
                 onClose={handleClose}
+                editable={editable}
+                toggleEditing={toggleEditing}
             />
             <WopiFilePreview
                 fileInfo={fileInfo}
