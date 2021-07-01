@@ -1,10 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 
 	"github.com/dgrijalva/jwt-go"
 )
+
+type WebappConfig struct {
+	FileEditPermissions bool `json:"file_edit_permissions"`
+}
+
+func (c *WebappConfig) ToMap() map[string]interface{} {
+	out := make(map[string]interface{})
+	b, _ := json.Marshal(c)
+	_ = json.Unmarshal(b, &out)
+	return out
+}
 
 // WopiToken is the token used for WOPI authentication.
 // When a user wants to open a file with Collabora Online this token is passed to Collabora Online

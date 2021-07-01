@@ -5,6 +5,7 @@ import {ClientError} from 'mattermost-redux/client/client4';
 import {Options} from 'mattermost-redux/types/client4';
 
 import {id as pluginId} from '../manifest';
+import {FILE_EDIT_PERMISSIONS} from '../constants';
 
 export default class Client {
     apiURL: string;
@@ -13,6 +14,16 @@ export default class Client {
     constructor() {
         this.apiURL = '/api/v4';
         this.baseURL = `/plugins/${pluginId}/api/v1`;
+    }
+
+    getConfig = () => {
+        return this.doGet(`${this.baseURL}/config`);
+    }
+
+    updateFileEditPermission = (fileID: string, permission: FILE_EDIT_PERMISSIONS) => {
+        const params = {permission};
+        const url = `${this.baseURL}/files/${fileID}/access${this.buildQueryString(params)}`;
+        return this.doPost(url);
     }
 
     createFileFromTemplate = (channelID: string, name: string, ext: string) => {

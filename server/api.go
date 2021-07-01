@@ -10,6 +10,8 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 
@@ -29,8 +31,10 @@ func (p *Plugin) InitAPI() *mux.Router {
 	s := r.PathPrefix("/api/v1").Subrouter()
 
 	// Add the custom plugin routes here
+	s.HandleFunc("/config", p.getWebappConfig).Methods(http.MethodGet)
+	s.HandleFunc("/files/{fileID:[A-Za-z0-9_-]+}/access", handleAuthRequired(p.handleSaveFilePermissions)).Methods(http.MethodPost)
 	s.HandleFunc("/channels/{channelID:[A-Za-z0-9_-]+}/files/new", handleAuthRequired(p.createFileFromTemplate)).Methods(http.MethodPost).Queries("name", "{name}", "ext", "{ext}")
-	s.HandleFunc("/fileInfo", handleAuthRequired(p.parseFileIDs)).Methods(http.MethodGet)
+	s.HandleFunc("/fileInfo", handleAuthRequired(p.getClientFileInfos)).Methods(http.MethodGet)
 	s.HandleFunc("/wopiFileList", handleAuthRequired(p.returnWopiFileList)).Methods(http.MethodGet)
 	s.HandleFunc("/collaboraURL", handleAuthRequired(p.returnCollaboraOnlineFileURL)).Methods(http.MethodGet)
 	s.HandleFunc("/wopi/files/{fileID:[a-z0-9]+}", p.getWopiFileInfo).Methods(http.MethodGet)
@@ -94,6 +98,69 @@ func handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request))
 
 		handleFunc(w, r)
 	}
+}
+
+func (p *Plugin) getWebappConfig(w http.ResponseWriter, r *http.Request) {
+	var config = p.getConfiguration().ToWebappConfig()
+
+	responseJSON, _ := json.Marshal(config)
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(responseJSON)
+}
+
+// handleSaveFilePermissions allows setting file permissions when the edit permissions system console setting is enabled.
+func (p *Plugin) handleSaveFilePermissions(w http.ResponseWriter, r *http.Request) {
+	conf := p.getConfiguration()
+	if !conf.FileEditPermissions {
+		p.API.LogError("handleSaveFilePermissions: Edit permissions feature is disabled in system console.")
+		http.Error(w, "Edit permissions feature is disabled in system console.", http.StatusBadRequest)
+		return
+	}
+
+	params := mux.Vars(r)
+	fileID := params["fileID"]
+	userID := r.Header.Get(HeaderMattermostUserID)
+	permissionQuery := r.URL.Query().Get("permission")
+	if _, ok := AllowedFilePermissions[permissionQuery]; !ok {
+		p.API.LogError("Invalid permission query param.", "permissionQuery", permissionQuery)
+		http.Error(w, "Invalid permission query param.", http.StatusBadRequest)
+		return
+	}
+
+	if err := p.setFilePermissions(fileID, userID, permissionQuery); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	returnStatusOK(w)
+}
+
+func (p *Plugin) setFilePermissions(fileID, userID, permission string) error {
+	fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
+	if fileInfoError != nil {
+		p.API.LogError("Error when retrieving file info: ", fileInfoError.Error(), "fileID", fileID)
+		return errors.Wrap(fileInfoError, "error when retrieving file info, invalid fileID")
+	}
+
+	post, postError := p.API.GetPost(fileInfo.PostId)
+	if postError != nil {
+		p.API.LogError("Error occurred when retrieving post info for file: " + postError.Error())
+		return errors.Wrap(postError, "error when retrieving post for file")
+	}
+
+	if post.UserId != userID {
+		p.API.LogError("User does not have access to change file permissions.")
+		return errors.New("only the file owner can change file permissions")
+	}
+
+	filePermissionsKey := GetFilePermissionsKey(fileID)
+	post.AddProp(filePermissionsKey, permission)
+	if _, postErr := p.API.UpdatePost(post); postErr != nil {
+		p.API.LogError("Failed to update post", "Error", postErr.Error())
+		return errors.Wrap(postError, "error when saving post with updated permissions")
+	}
+
+	return nil
 }
 
 // createFileFromTemplate creates a new file from template in the given channel
@@ -165,9 +232,9 @@ func (p *Plugin) createFileFromTemplate(w http.ResponseWriter, r *http.Request) 
 	returnStatusOK(w)
 }
 
-// parseFileIDs sends the file info to the client (name, extension and id) for each file
-// body contains an array with file ids in JSON format
-func (p *Plugin) parseFileIDs(w http.ResponseWriter, r *http.Request) {
+// getClientFileInfos sends the ClientFileInfo (name, extension and id) for each file to the client.
+// The response body contains an array with file ids in JSON format.
+func (p *Plugin) getClientFileInfos(w http.ResponseWriter, r *http.Request) {
 	// extract fileIDs array from body
 	body, bodyReadError := ioutil.ReadAll(r.Body)
 	if bodyReadError != nil {
@@ -224,15 +291,36 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	file, fileError := p.API.GetFileInfo(fileID)
+	fileInfo, fileError := p.API.GetFileInfo(fileID)
 	if fileError != nil {
 		p.API.LogError("Failed to retrieve file. Error: ", fileError.Error())
 		http.Error(w, "Invalid fileID. Error: "+fileError.Error(), http.StatusBadRequest)
 		return
 	}
 
-	wopiURL := WopiFiles[strings.ToLower(file.Extension)].URL + "WOPISrc=" + (p.getBaseAPIURL() + "/wopi/files/" + fileID)
-	wopiToken := p.EncodeToken(r.Header.Get(HeaderMattermostUserID), fileID)
+	post, postError := p.API.GetPost(fileInfo.PostId)
+	if postError != nil {
+		p.API.LogError("Error occurred when retrieving post info for file: " + postError.Error())
+		http.Error(w, postError.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID := r.Header.Get(HeaderMattermostUserID)
+	conf := p.getConfiguration()
+	existingFilePermission := post.GetProp(GetFilePermissionsKey(fileID))
+
+	// initialize file permission if not already exists
+	if conf.FileEditPermissions && existingFilePermission == "" {
+		// If the edit permissions feature is enabled,
+		// set the default permission to allow only the owner to edit
+		if err := p.setFilePermissions(fileID, userID, PermissionOwner); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + (p.getBaseAPIURL() + "/wopi/files/" + fileID)
+	wopiToken := p.EncodeToken(userID, fileID)
 
 	response := struct {
 		URL         string `json:"url"`
@@ -314,9 +402,14 @@ func (p *Plugin) saveWopiFileContents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if user has access to the channel where the file was sent
-	if !p.API.HasPermissionToChannel(wopiToken.UserID, post.ChannelId, model.PERMISSION_READ_CHANNEL) {
-		p.API.LogError("User: " + wopiToken.UserID + " does not have the appropriate permissions: PERMISSION_READ_CHANNEL. Channel: " + post.ChannelId)
+	conf := p.getConfiguration()
+	filePermission := post.GetProp(GetFilePermissionsKey(fileID))
+	canChannelEdit := !conf.FileEditPermissions || filePermission == PermissionChannel
+	canOwnerOnlyEdit := conf.FileEditPermissions && filePermission == PermissionOwner
+	canCurrentUserEdit := (canChannelEdit && p.API.HasPermissionToChannel(wopiToken.UserID, post.ChannelId, model.PERMISSION_READ_CHANNEL)) || (canOwnerOnlyEdit && post.UserId == wopiToken.UserID)
+
+	if !canCurrentUserEdit {
+		p.API.LogError("User does not have the appropriate permissions to edit the file.", "channelID", post.ChannelId, "userID", wopiToken.UserID)
 		http.Error(w, "You do not have the appropriate permissions.", http.StatusForbidden)
 		return
 	}
