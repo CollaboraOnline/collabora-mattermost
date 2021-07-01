@@ -7,6 +7,7 @@ export const CLIENT_CONFIG_ERROR = pluginID + '_client_config_error';
 
 export const SHOW_FILE_PREVIEW = pluginID + '_show_file_preview';
 export const CLOSE_FILE_PREVIEW = pluginID + '_close_file_preview';
+export const INHIBIT_FILE_PREVIEW = pluginID + '_inhibit_file_preview';
 
 export const SHOW_FILE_CREATE_MODAL = pluginID + '_show_file_create_modal';
 export const CLOSE_FILE_CREATE_MODAL = pluginID + '_close_file_create_modal';
