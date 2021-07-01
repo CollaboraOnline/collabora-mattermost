@@ -1,16 +1,11 @@
-import React, {FC, useMemo} from 'react';
-import {useSelector} from 'react-redux';
+import React, {FC} from 'react';
 import clsx from 'clsx';
 import {Button} from 'react-bootstrap';
 
 import {FileInfo} from 'mattermost-redux/types/files';
-import {GlobalState} from 'mattermost-redux/types/store';
-import {getPost} from 'mattermost-redux/selectors/entities/posts';
-import {getChannel} from 'mattermost-redux/selectors/entities/channels';
 
 import Client from 'client';
-
-import {CHANNEL_TYPES} from '../constants';
+import {useChannelName} from 'hooks/useChannelName';
 
 import CloseIcon from './close_icon';
 
@@ -19,27 +14,16 @@ type Props = {
     onClose: () => void;
     editable: boolean;
     toggleEditing: () => void;
+    canChannelEdit: boolean;
+    toggleCanChannelEdit: () => void;
+    showEditPermissionChangeOption: boolean;
 }
 
-export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggleEditing}: Props) => {
-    const post = useSelector((state: GlobalState) => getPost(state, fileInfo.post_id || ''));
-    const channel = useSelector((state: GlobalState) => getChannel(state, post?.channel_id));
-    const channelName: React.ReactNode = useMemo(() => {
-        if (!channel) {
-            return '';
-        }
-
-        switch (channel.type) {
-        case CHANNEL_TYPES.CHANNEL_DIRECT:
-            return 'Direct Message';
-
-        case CHANNEL_TYPES.CHANNEL_GROUP:
-            return 'Group Message';
-
-        default:
-            return channel.display_name;
-        }
-    }, [channel]);
+export const FilePreviewHeader: FC<Props> = (props: Props) => {
+    const {fileInfo, onClose, editable, toggleEditing, canChannelEdit, toggleCanChannelEdit, showEditPermissionChangeOption} = props;
+    const channelName: React.ReactNode = useChannelName(fileInfo);
+    const canCurrentUserEdit = showEditPermissionChangeOption || canChannelEdit;
+    const editModeTitle = `${editable ? 'Lock' : 'Unlock'} Editing${canCurrentUserEdit ? '' : ' (disabled as only the owner can edit)'}`;
 
     return (
         <>
@@ -124,10 +108,11 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggl
                     <Button
                         bsSize='large'
                         bsStyle='large'
+                        disabled={!canCurrentUserEdit}
                         onClick={toggleEditing}
                         className='collabora-header-action-button'
-                        title={`${editable ? 'Lock' : 'Unlock'} Editing`}
-                        aria-label={`${editable ? 'Lock' : 'Unlock'} Editing`}
+                        title={editModeTitle}
+                        aria-label={editModeTitle}
                     >
                         <i
                             className={clsx(
@@ -139,7 +124,27 @@ export const FilePreviewHeader: FC<Props> = ({fileInfo, onClose, editable, toggl
                             )}
                         />
                     </Button>
-
+                    {
+                        showEditPermissionChangeOption && (
+                            <Button
+                                bsStyle='large'
+                                onClick={toggleCanChannelEdit}
+                                className='collabora-header-action-button'
+                                title={canChannelEdit ? 'Everyone in the channel can edit.' : 'Only you can edit.'}
+                                aria-label={canChannelEdit ? 'Everyone in the channel can edit.' : 'Only you can edit.'}
+                            >
+                                <i
+                                    className={clsx(
+                                        'fa',
+                                        {
+                                            'fa-users': canChannelEdit,
+                                            'fa-user': !canChannelEdit,
+                                        },
+                                    )}
+                                />
+                            </Button>
+                        )
+                    }
                     <div className='collabora-header-actions-separator'/>
                     <CloseIcon
                         id='closeIcon'

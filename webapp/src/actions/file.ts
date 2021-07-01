@@ -1,8 +1,8 @@
 import {Dispatch} from 'redux';
 
-import {DispatchFunc} from 'mattermost-redux/types/actions';
+import {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
 
-import Constants, {TEMPLATE_TYPES} from '../constants';
+import Constants, {FILE_EDIT_PERMISSIONS, TEMPLATE_TYPES} from '../constants';
 import Client from '../client';
 
 export const showFileCreateModal = (templateType: TEMPLATE_TYPES) => (dispatch: Dispatch) => {
@@ -23,6 +23,18 @@ export function createFileFromTemplate(channelID: string, name: string, ext: str
         let data = null;
         try {
             data = await Client.createFileFromTemplate(channelID, name, ext);
+        } catch (error) {
+            return {data, error};
+        }
+        return {data, error: null};
+    };
+}
+
+export function updateFileEditPermission(fileID: string, permission: FILE_EDIT_PERMISSIONS) {
+    return async (): Promise<ActionResult> => {
+        let data = null;
+        try {
+            data = await Client.updateFileEditPermission(fileID, permission);
         } catch (error) {
             return {data, error};
         }
