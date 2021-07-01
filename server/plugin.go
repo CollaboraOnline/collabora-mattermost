@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
 )
@@ -46,7 +47,18 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	p.setConfiguration(configuration)
+
+	// send the updated config to the webapp
+	p.API.PublishWebSocketEvent(WebsocketEventConfigUpdated, configuration.ToWebappConfig().ToMap(), &model.WebsocketBroadcast{})
+
 	return nil
+}
+
+// UserHasLoggedIn is invoked after a user has logged in.
+func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
+	// send the config to the webapp
+	config := p.getConfiguration().ToWebappConfig()
+	p.API.PublishWebSocketEvent(WebsocketEventConfigUpdated, config.ToMap(), &model.WebsocketBroadcast{})
 }
 
 // ServeHTTP handles HTTP requests for the plugin.

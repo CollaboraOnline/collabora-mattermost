@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 
+	root "github.com/CollaboraOnline/collabora-mattermost"
+
 	"github.com/mattermost/mattermost-server/v5/shared/filestore"
 )
 
@@ -41,4 +43,8 @@ func (p *Plugin) GetHTTPClient() *http.Client {
 
 	client := &http.Client{Transport: customTransport}
 	return client
+}
+
+func GetFilePermissionsKey(fileID string) string {
+	return root.Manifest.Id + "_file_permissions_" + fileID
 }

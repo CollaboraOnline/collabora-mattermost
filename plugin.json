@@ -44,6 +44,12 @@
                 "regenerate_help_text": "Regenerates the encryption key for Collabora Online server. Regenerating this key invalidates any existing wopi file preview/edit sessions.",
                 "placeholder": "",
                 "default": null
+            },
+            {
+                "key": "FileEditPermissions",
+                "display_name": "File Edit Permissions:",
+                "type": "bool",
+                "help_text": "If enabled, editing files is restricted to the file owner by default and they have the ability to share access with the whole channel."
             }
         ]
     }

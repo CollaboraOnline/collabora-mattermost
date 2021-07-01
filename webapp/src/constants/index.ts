@@ -21,9 +21,16 @@ export const CHANNEL_TYPES = {
     CHANNEL_GROUP: 'G',
 };
 
+export enum FILE_EDIT_PERMISSIONS {
+    PERMISSION_OWNER = 'owner',
+    PERMISSION_CHANNEL = 'channel',
+}
+
 export default Object.freeze({
     ACTION_TYPES,
     CHANNEL_TYPES,
     TEMPLATE_TYPES,
+    FILE_EDIT_PERMISSIONS,
     FILE_TEMPLATES,
+    WEBSOCKET_EVENT_CONFIG_UPDATED: 'config_updated',
 });
