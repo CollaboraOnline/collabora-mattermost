@@ -23,12 +23,13 @@ import {FILE_EDIT_PERMISSIONS} from '../constants';
 
 type FilePreviewModalSelector = {
     visible: boolean;
+    inhibited: boolean;
     fileInfo: FileInfo;
 }
 
 const FilePreviewModal: FC = () => {
     const dispatch: ThunkDispatch<GlobalState, undefined, AnyAction> = useDispatch();
-    const {visible, fileInfo}: FilePreviewModalSelector = useSelector(filePreviewModal);
+    const {visible, inhibited, fileInfo}: FilePreviewModalSelector = useSelector(filePreviewModal);
     const [editable, setEditable] = useState(false);
     const toggleEditing = useCallback(() => {
         setEditable((prevState) => !prevState);
@@ -82,7 +83,7 @@ const FilePreviewModal: FC = () => {
     return (
         <FullScreenModal
             compact={true}
-            show={visible}
+            show={visible && !inhibited}
         >
             <FilePreviewHeader
                 fileInfo={fileInfo}
