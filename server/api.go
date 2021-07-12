@@ -127,7 +127,7 @@ func (p *Plugin) handleSaveFilePermissions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := p.setFilePermissions(fileID, userID, permissionQuery); err != nil {
+	if err := p.setFilePermissions(fileID, userID, permissionQuery, false); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -135,7 +135,7 @@ func (p *Plugin) handleSaveFilePermissions(w http.ResponseWriter, r *http.Reques
 	returnStatusOK(w)
 }
 
-func (p *Plugin) setFilePermissions(fileID, userID, permission string) error {
+func (p *Plugin) setFilePermissions(fileID, userID, permission string, bypassFileOwnerCheck bool) error {
 	fileInfo, fileInfoError := p.API.GetFileInfo(fileID)
 	if fileInfoError != nil {
 		p.API.LogError("Error when retrieving file info: ", fileInfoError.Error(), "fileID", fileID)
@@ -148,7 +148,7 @@ func (p *Plugin) setFilePermissions(fileID, userID, permission string) error {
 		return errors.Wrap(postError, "error when retrieving post for file")
 	}
 
-	if post.UserId != userID {
+	if !bypassFileOwnerCheck && post.UserId != userID {
 		p.API.LogError("User does not have access to change file permissions.")
 		return errors.New("only the file owner can change file permissions")
 	}
@@ -310,10 +310,13 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	existingFilePermission := post.GetProp(GetFilePermissionsKey(fileID))
 
 	// initialize file permission if not already exists
-	if conf.FileEditPermissions && existingFilePermission == "" {
+	if conf.FileEditPermissions && existingFilePermission == nil {
 		// If the edit permissions feature is enabled,
 		// set the default permission to allow only the owner to edit
-		if err := p.setFilePermissions(fileID, userID, PermissionOwner); err != nil {
+		// skip the file owner check to handle the scenario
+		// when some user A has uploaded a file(and has not opened it with collabora), which is opened for first time by user B
+
+		if err := p.setFilePermissions(fileID, userID, PermissionOwner, true); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
