@@ -310,7 +310,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	existingFilePermission := post.GetProp(GetFilePermissionsKey(fileID))
 
 	// initialize file permission if not already exists
-	if conf.FileEditPermissions && existingFilePermission == "" {
+	if conf.FileEditPermissions && existingFilePermission == nil {
 		// If the edit permissions feature is enabled,
 		// set the default permission to allow only the owner to edit
 		if err := p.setFilePermissions(fileID, userID, PermissionOwner); err != nil {
