@@ -23,10 +23,13 @@ export const enableEditPermissions = (state: GlobalState) => Boolean(collaboraCo
 
 export function makeGetIsCurrentUserFileOwner(): (state: GlobalState, fileInfo: FileInfo) => boolean {
     return createSelector(
+        (_, fileInfo: FileInfo) => fileInfo,
         (state: GlobalState, fileInfo: FileInfo) => getPost(state, fileInfo.post_id || ''),
         (state: GlobalState) => getCurrentUser(state),
-        (post, currentUser) => {
-            return Boolean(post?.user_id === currentUser.id);
+        (fileInfo, post, currentUser) => {
+            // for the existing attachment, user_id is fetched from post
+            // but, for the newly created attachment, user_id is not present in fileinfo,
+            return Boolean(post?.user_id === currentUser.id || fileInfo.user_id === currentUser.id);
         },
     );
 }
