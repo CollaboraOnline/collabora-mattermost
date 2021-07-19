@@ -42,6 +42,8 @@ You can build your own, or conveniently use a version of our [CODE edition](http
 ## Development
 
 You can use the self-hosted Collabora Online Server i.e. the [CODE](https://www.collaboraoffice.com/code/) docker image.
+- Collabora Online Development Edition (CODE) is available as a Docker image from [Docker Hub](https://hub.docker.com/r/collabora/code/).
+- Follow [step-by-step instructions](https://sdk.collaboraonline.com/docs/installation/CODE_Docker_image.html).
 
 ```sh
 # pull collabora image
