@@ -11,9 +11,6 @@ assignees: ''
 
 A one-line description of what the bug is.
 
-**Note:** Please confirm your issue does not involve security. Otherwise, please see our Responsible Disclosure Policy.
-
-
 **Steps To Reproduce**
 
 Steps to reproduce the behavior:
