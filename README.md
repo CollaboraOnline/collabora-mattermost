@@ -159,6 +159,12 @@ make deploy
      docker run -t -d --network host -e 'domain=localhost' -e "username=admin" -e "password=secret" -e "DONT_GEN_SSL_CERT=true" -e "extra_params=--o:ssl.enable=false" --restart always --cap-add MKNOD --name=code collabora/code
      ```
 
+- Q. If you are running development mode on a Mac and see `Cleaning up documet from last session` message and then `Connection Refused` error while trying to preview files while running CODE docker image locally.  
+  A. Make sure mattermost sureURL is set to `host.docker.internal:8065` (if running in development mode). Use domain property properly:
+    ```shell
+    docker run -t -d -p 9980:9980 -e 'domain=localhost|host\\.docker\\.internal' -e "username=admin" -e "password=secret" --restart always --cap-add MKNOD -e "extra_params=--o:ssl.enable=false" -e "DONT_GEN_SSL_CERT=true" --name=code collabora/code
+    ```
+
 - Q. Failed to read document from storage. Please contact your storage server administrator.  
   A. Make sure you are running both Mattermost and Collabora Server with the same protocol (http/https).
      Check your Mattermost logs for more information.
