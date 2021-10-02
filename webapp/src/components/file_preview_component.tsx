@@ -42,7 +42,7 @@ const FilePreviewComponent: FC<Props> = ({fileInfo}: Props) => {
                 <Button onClick={enableEditing}>
                     <span className='wopi-switch-to-edit-mode'>
                         <i className='fa fa-pencil-square-o'/>
-                        {' Enable Editing'}
+                        {' Edit'}
                     </span>
                 </Button>
             )}
