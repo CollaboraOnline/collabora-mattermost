@@ -75,7 +75,7 @@
     "core-js": "3.10.1",
     "mattermost-redux": "5.33.1",
     "mattermost-webapp": "github:mattermost/mattermost-webapp#68476db78ec63fd6d99b55d34894a644eef4e725",
-    "qs": "6.10.1",
+    "qs": "6.10.3",
     "react": "16.14.0",
     "react-bootstrap": "github:mattermost/react-bootstrap#c6957962364e0818a51bbfd13e89919903b422d6",
     "react-dom": "16.13.1",
