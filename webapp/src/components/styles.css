@@ -71,7 +71,7 @@
 }
 
 .wopi-iframe {
-    height: calc(100vh - 69px);
+    height: calc(100vh - 108px);
     width: calc(90vw - 5px);
     border: none;
 }
