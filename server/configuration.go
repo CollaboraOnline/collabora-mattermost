@@ -142,20 +142,20 @@ func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 	client := p.GetHTTPClient()
 	resp, err := client.Get(wopiAddress + "/hosting/discovery")
 	if err != nil {
-		p.API.LogError("WOPI request error. Please check the WOPI address.", err.Error())
+		p.client.Log.Error("WOPI request error. Please check the WOPI address.", err.Error())
 		return err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		p.API.LogError("WOPI request error. Failed to read WOPI request body. Please check the WOPI address.", err.Error())
+		p.client.Log.Error("WOPI request error. Failed to read WOPI request body. Please check the WOPI address.", err.Error())
 		return err
 	}
 
 	// wopiData contains the XML from <WOPI>/hosting/discovery
 	var wopiData WopiDiscovery
 	if err := xml.Unmarshal(body, &wopiData); err != nil {
-		p.API.LogError("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())
+		p.client.Log.Error("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())
 		return err
 	}
 
@@ -170,6 +170,6 @@ func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 		}
 	}
 
-	p.API.LogInfo("WOPI file info loaded successfully!", "wopiFiles", WopiFiles)
+	p.client.Log.Info("WOPI file info loaded successfully!", "wopiFiles", WopiFiles)
 	return nil
 }

@@ -71,7 +71,7 @@ type WopiCheckFileInfo struct {
 	UserCanNotWriteRelative bool `json:"UserCanNotWriteRelative"`
 }
 
-// WopiFile is used top map file extension with the action & url
+// WopiFile is used to map file extension with the action & url
 type WopiFile struct {
 	URL    string // WOPI url to view/edit the file
 	Action string // edit or view

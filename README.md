@@ -15,7 +15,7 @@ Below you can see a list with the supported formats:
 - Others: .txt, .csv, .gif, .jpg, .jpeg, .png, .svg, .pdf etc.
 
 Please note that files like .pdf, .jpg, .svg, and others can only be viewed and not edited.
-  
+
 Collabora Online uses a WOPI-like protocol (client) to access the files on your Mattermost server (host). You can read more about it on https://wopi.readthedocs.io. Hence, you will also need a Collabora Online instance to use the plugin.
 You can build your own, or conveniently use a version of our [CODE edition](https://www.collaboraoffice.com/code/).
 
@@ -50,13 +50,13 @@ You can use the self-hosted Collabora Online Server i.e. the [CODE](https://www.
 docker pull collabora/code
 
 # Run with http url: http://localhost:9980/
-docker run -t -d -p 127.0.0.1:9980:9980 -p [::1]:9980:9980 -e 'domain=my\\.-local\\.-ip\\.address' -e "username=admin" -e "password=secret" --restart always --cap-add MKNOD -e "extra_params=--o:ssl.enable=false" --name=code collabora/code
+docker run -t -d -p 127.0.0.1:9980:9980 -p '[::1]:9980:9980' -e 'domain=my\\.-local\\.-ip\\.address' -e "username=admin" -e "password=secret" --restart always --cap-add MKNOD -e "extra_params=--o:ssl.enable=false" --name=code collabora/code
 
 # Run with https url: https://localhost:9980/
-docker run -t -d -p 127.0.0.1:9980:9980 -p [::1]:9980:9980 -e 'domain=my\\.-local\\.-ip\\.address' -e "username=admin" -e "password=secret" --restart always --cap-add MKNOD --name=code collabora/code
+docker run -t -d -p 127.0.0.1:9980:9980 -p '[::1]:9980:9980' -e 'domain=my\\.-local\\.-ip\\.address' -e "username=admin" -e "password=secret" --restart always --cap-add MKNOD --name=code collabora/code
 ```
 
-**Additional Notes**: 
+**Additional Notes**:
 
 1. You need to make sure SSL is enabled (with local ssl certificate accepted in your browser) or disabled for both Mattermost and CODE.
    If one setup has https enabled and the other not, it will not work.
@@ -70,8 +70,7 @@ docker run -t -d -p 127.0.0.1:9980:9980 -p [::1]:9980:9980 -e 'domain=my\\.-loca
 
 1. The `domain` environment variable should point to the Mattermost server's IP address and not the Collabora Server.
 
-1. If you are using a self-signed certificate with mattermost running over `https`, you must enable the `Disable certificate verification` system console setting 
-   and accept the local ssl certificate in your browser to be able to preview files.
+1. If you are using a self-signed certificate with mattermost running over `https`, you must enable the `Disable certificate verification` system console setting and accept the local ssl certificate in your browser to be able to preview files.
 
 ## Building the plugin
 
@@ -153,15 +152,15 @@ make deploy
 
 ## Troubleshooting
 
-- Q. If you get `Connection Refused` error while trying to preview files when running CODE docker image locally.  
+- Q. If you get `Connection Refused` error while trying to preview files when running CODE docker image locally.
   A. Use docker host network:
      ```shell
      docker run -t -d --network host -e 'domain=localhost' -e "username=admin" -e "password=secret" -e "DONT_GEN_SSL_CERT=true" -e "extra_params=--o:ssl.enable=false" --restart always --cap-add MKNOD --name=code collabora/code
      ```
 
-- Q. Failed to read document from storage. Please contact your storage server administrator.  
+- Q. Failed to read document from storage. Please contact your storage server administrator.
   A. Make sure you are running both Mattermost and Collabora Server with the same protocol (http/https).
      Check your Mattermost logs for more information.
 
-- Q. CollaboraOnline Server URL in the system console does not get updated.  
+- Q. CollaboraOnline Server URL in the system console does not get updated.
   A. You may need to disable and re-enable the plugin for the server URL (or other system console settings) changes to take effect.

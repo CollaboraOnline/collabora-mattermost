@@ -16,13 +16,13 @@ func (p *Plugin) EncodeToken(userID string, fileID string) string {
 	})
 	signedString, err := token.SignedString([]byte(config.EncryptionKey))
 	if err != nil {
-		p.API.LogError("Failed to encode WOPI token.", "Error", err.Error())
+		p.client.Log.Error("Failed to encode WOPI token.", "Error", err.Error())
 		return ""
 	}
 	return signedString
 }
 
-// DecodeToken decodes a token string an returns WopiToken and isValid
+// DecodeToken decodes a token string and returns WopiToken and isValid
 func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	config := p.getConfiguration()
 	wopiToken := WopiToken{}
@@ -31,7 +31,7 @@ func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	})
 
 	if err != nil {
-		p.API.LogError("Failed to decode WOPI token.", "Error", err.Error())
+		p.client.Log.Error("Failed to decode WOPI token.", "Error", err.Error())
 		return WopiToken{}, false
 	}
 

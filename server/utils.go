@@ -7,12 +7,12 @@ import (
 
 	root "github.com/CollaboraOnline/collabora-mattermost"
 
-	"github.com/mattermost/mattermost-server/v5/shared/filestore"
+	"github.com/mattermost/mattermost-server/v6/shared/filestore"
 )
 
 func (p *Plugin) getFileBackend() (filestore.FileBackend, error) {
-	license := p.API.GetLicense()
-	serverConfig := p.API.GetUnsanitizedConfig()
+	license := p.client.System.GetLicense()
+	serverConfig := p.client.Configuration.GetUnsanitizedConfig()
 	backend, err := filestore.NewFileBackend(serverConfig.FileSettings.ToFileBackendSettings(license != nil && *license.Features.Compliance))
 	if err != nil {
 		return nil, err
