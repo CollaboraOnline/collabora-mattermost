@@ -4,16 +4,14 @@ import (
 	"net/http"
 	"sync"
 
-	root "github.com/CollaboraOnline/collabora-mattermost"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+
 	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
-	"github.com/pkg/errors"
-)
 
-var (
-	Manifest model.Manifest = root.Manifest
+	root "github.com/CollaboraOnline/collabora-mattermost"
 )
 
 // Plugin required by plugin
@@ -22,6 +20,8 @@ type Plugin struct {
 
 	client *pluginapi.Client
 	router *mux.Router
+
+	manifest model.Manifest
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -37,6 +37,7 @@ type Plugin struct {
 func (p *Plugin) OnActivate() error {
 	p.client = pluginapi.NewClient(p.API, p.Driver)
 	p.router = p.InitAPI()
+	p.manifest = root.Manifest
 
 	if err := p.registerSiteURL(); err != nil {
 		return errors.Wrap(err, "could not register site URL")

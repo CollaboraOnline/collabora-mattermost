@@ -1,16 +1,16 @@
-import {getConfig, setConfig} from './config';
-import {getWopiFilesList, getCollaboraFileURL} from './wopi';
-import {showFilePreview, closeFilePreview} from './preview';
-import {createFileFromTemplate, closeFileCreateModal, showFileCreateModal} from './file';
+import { getConfig, setConfig } from './config';
+import { closeFileCreateModal, createFileFromTemplate, showFileCreateModal } from './file';
+import { closeFilePreview, showFilePreview } from './preview';
+import { getCollaboraFileURL, getWopiFilesList } from './wopi';
 
 export default {
-    getConfig,
-    setConfig,
-    showFilePreview,
-    closeFilePreview,
-    getCollaboraFileURL,
-    getWopiFilesList,
-    createFileFromTemplate,
-    closeFileCreateModal,
-    showFileCreateModal,
+  getConfig,
+  setConfig,
+  showFilePreview,
+  closeFilePreview,
+  getCollaboraFileURL,
+  getWopiFilesList,
+  createFileFromTemplate,
+  closeFileCreateModal,
+  showFileCreateModal,
 };

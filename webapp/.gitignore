@@ -1,2 +1,4 @@
 node_modules
 .npminstall
+.eslintcache
+junit.xml

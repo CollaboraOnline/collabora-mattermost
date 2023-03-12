@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -13,8 +14,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
-
-	root "github.com/CollaboraOnline/collabora-mattermost"
 )
 
 const (
@@ -47,15 +46,15 @@ func (p *Plugin) InitAPI() *mux.Router {
 	return r
 }
 
-func (p *Plugin) getBaseAPIURL() string {
-	return p.siteURL + "/plugins/" + root.Manifest.Id + "/api/v1"
+func (p *Plugin) getAPIBaseURL() string {
+	return p.siteURL + "/plugins/" + p.manifest.Id + "/api/v1"
 }
 
 func returnStatusOK(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	m := make(map[string]string)
 	m[model.STATUS] = model.StatusOk
-	w.Write([]byte(model.MapToJSON(m)))
+	_, _ = w.Write([]byte(model.MapToJSON(m)))
 }
 
 // withRecovery allows recovery from panics
@@ -153,7 +152,7 @@ func (p *Plugin) setFilePermissions(fileID, userID, permission string, bypassFil
 		return errors.New("only the file owner can change file permissions")
 	}
 
-	filePermissionsKey := GetFilePermissionsKey(fileID)
+	filePermissionsKey := p.GetFilePermissionsKey(fileID)
 	post.AddProp(filePermissionsKey, permission)
 	if postErr := p.client.Post.UpdatePost(post); postErr != nil {
 		p.client.Log.Error("Failed to update post", "Error", postErr.Error())
@@ -201,9 +200,9 @@ func (p *Plugin) createFileFromTemplate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	templateDir := filepath.Join(bundlePath, "assets", "templates")
-	tmplPath := path.Join(templateDir, templateName)
+	templatePath := path.Join(templateDir, templateName)
 
-	templateFileReader, err := os.Open(tmplPath)
+	templateFileReader, err := os.Open(templatePath)
 	if err != nil {
 		p.client.Log.Error("Failed to get the template content.", "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -265,7 +264,7 @@ func (p *Plugin) getClientFileInfos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(WopiFiles); err != nil {
+	if err := json.NewEncoder(w).Encode(files); err != nil {
 		p.client.Log.Warn("failed to write response", "error", err.Error())
 	}
 }
@@ -279,7 +278,7 @@ func (p *Plugin) returnWopiFileList(w http.ResponseWriter, _ *http.Request) {
 }
 
 // returnCollaboraOnlineFileURL returns the URL and token that the client will use to
-// load Collabora Online in the iframe
+// load Collabora Online in the iFrame
 func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Request) {
 	// retrieve fileID and file info
 	fileID := r.URL.Query().Get("file_id")
@@ -305,7 +304,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 
 	userID := r.Header.Get(HeaderMattermostUserID)
 	conf := p.getConfiguration()
-	existingFilePermission := post.GetProp(GetFilePermissionsKey(fileID))
+	existingFilePermission := post.GetProp(p.GetFilePermissionsKey(fileID))
 
 	// initialize file permission if not already exists
 	if conf.FileEditPermissions && existingFilePermission == nil {
@@ -320,12 +319,12 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + (p.getBaseAPIURL() + "/wopi/files/" + fileID)
+	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + (p.getAPIBaseURL() + "/wopi/files/" + fileID)
 	wopiToken := p.EncodeToken(userID, fileID)
 
 	response := struct {
 		URL         string `json:"url"`
-		AccessToken string `json:"access_token"` // client will pass this token as a POST parameter to Collabora Online when loading the iframe
+		AccessToken string `json:"access_token"` // client will pass this token as a POST parameter to Collabora Online when loading the iFrame
 	}{wopiURL, wopiToken}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -375,7 +374,7 @@ func (p *Plugin) getWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send file to Collabora Online
-	_, _ = w.Write(fileContent)
+	_, _ = io.Copy(w, fileContent)
 }
 
 // saveWopiFileContents is used by Collabora Online server to save the updated contents of a file
@@ -405,7 +404,7 @@ func (p *Plugin) saveWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conf := p.getConfiguration()
-	filePermission := post.GetProp(GetFilePermissionsKey(fileID))
+	filePermission := post.GetProp(p.GetFilePermissionsKey(fileID))
 	canChannelEdit := !conf.FileEditPermissions || filePermission == PermissionChannel
 	canOwnerOnlyEdit := conf.FileEditPermissions && filePermission == PermissionOwner
 	canCurrentUserEdit := (canChannelEdit && p.client.User.HasPermissionToChannel(wopiToken.UserID, post.ChannelId, model.PermissionReadChannel)) || (canOwnerOnlyEdit && post.UserId == wopiToken.UserID)

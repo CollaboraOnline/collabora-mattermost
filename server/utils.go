@@ -5,15 +5,14 @@ import (
 	"io"
 	"net/http"
 
-	root "github.com/CollaboraOnline/collabora-mattermost"
-
 	"github.com/mattermost/mattermost-server/v6/shared/filestore"
 )
 
 func (p *Plugin) getFileBackend() (filestore.FileBackend, error) {
 	license := p.client.System.GetLicense()
+	insecure := p.client.Configuration.GetConfig().ServiceSettings.EnableInsecureOutgoingConnections
 	serverConfig := p.client.Configuration.GetUnsanitizedConfig()
-	backend, err := filestore.NewFileBackend(serverConfig.FileSettings.ToFileBackendSettings(license != nil && *license.Features.Compliance))
+	backend, err := filestore.NewFileBackend(serverConfig.FileSettings.ToFileBackendSettings(license != nil && *license.Features.Compliance, insecure != nil && *insecure))
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +44,6 @@ func (p *Plugin) GetHTTPClient() *http.Client {
 	return client
 }
 
-func GetFilePermissionsKey(fileID string) string {
-	return root.Manifest.Id + "_file_permissions_" + fileID
+func (p *Plugin) GetFilePermissionsKey(fileID string) string {
+	return p.manifest.Id + "_file_permissions_" + fileID
 }
