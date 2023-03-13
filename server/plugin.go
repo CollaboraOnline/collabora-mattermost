@@ -28,7 +28,7 @@ type Plugin struct {
 
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
-	configuration *configuration
+	configuration *Configuration
 
 	siteURL string
 }
@@ -62,7 +62,14 @@ func (p *Plugin) registerSiteURL() error {
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
+	// if running for the first time
+	if p.client == nil {
+		if err := p.OnActivate(); err != nil {
+			return err
+		}
+	}
+
+	var configuration = new(Configuration)
 
 	// Load the public configuration fields from the Mattermost server configuration.
 	if loadConfigErr := p.client.Configuration.LoadPluginConfiguration(configuration); loadConfigErr != nil {

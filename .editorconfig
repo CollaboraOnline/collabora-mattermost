@@ -15,7 +15,7 @@ indent_style = tab
 indent_style = space
 indent_size = 4
 
-[webapp/package*.json, webapp/.eslintrc.json, webapp/.prettierrc, webapp/.stylelintrc.json, webapp/babel.config.js, webapp/tsconfig.json, webapp/webpack.config.js]
+[package*.json,.eslintrc.json,.prettierrc,.stylelintrc.json,babel.config.js,tsconfig.json,webpack.config.js]
 indent_size = 2
 indent_style = space
 

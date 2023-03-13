@@ -1,58 +1,58 @@
 {
-    "id": "com.collaboraonline.mattermost",
-    "name": "Collabora Online",
-    "description": "Allows users to edit/view documents with the help of Collabora Online.",
-    "homepage_url": "https://github.com/CollaboraOnline/collabora-mattermost",
-    "support_url": "https://github.com/CollaboraOnline/collabora-mattermost/issues",
-    "release_notes_url": "https://github.com/CollaboraOnline/collabora-mattermost/releases/latest",
-    "icon_path": "assets/icons/icon.svg",
-    "version": "1.2.0",
-    "min_server_version": "5.37.0",
-    "server": {
-        "executables": {
-            "linux-amd64": "server/dist/plugin-linux-amd64",
-            "linux-arm64": "server/dist/plugin-linux-arm64",
-            "darwin-amd64": "server/dist/plugin-darwin-amd64",
-            "darwin-arm64": "server/dist/plugin-darwin-arm64",
-            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
-        }
-    },
-    "webapp": {
-        "bundle_path": "webapp/dist/main.js"
-    },
-    "settings_schema": {
-        "header": "Collabora Online is a powerful LibreOffice-based online office suite with collaborative editing, which supports all major documents, spreadsheet and presentation file formats and works together with all modern browsers.",
-        "footer": "Please see https://www.collaboraoffice.com/integrations/mattermost-plugin/ for more information.",
-        "settings": [
-            {
-                "key": "WOPIAddress",
-                "type": "text",
-                "display_name": "Collabora Online Address:",
-                "help_text": "Collabora Online requires a separate server acting as a WOPI-like Client to provide editing capabilities. Please configure a Collabora Online server to start editing documents.",
-                "placeholder": "URL",
-                "default": ""
-            },
-            {
-                "key": "SkipSSLVerify",
-                "type": "bool",
-                "display_name": "Disable certificate verification (insecure):",
-                "help_text": "Enable if your Collabora Online server uses a self signed certificate."
-            },
-            {
-                "key": "EncryptionKey",
-                "display_name": "Token Encryption Key:",
-                "type": "generated",
-                "help_text": "The encryption key used to encrypt Collabora Online server access tokens.",
-                "regenerate_help_text": "Regenerates the encryption key for Collabora Online server. Regenerating this key invalidates any existing wopi file preview/edit sessions.",
-                "placeholder": "",
-                "default": null
-            },
-            {
-                "key": "FileEditPermissions",
-                "display_name": "File Edit Permissions:",
-                "type": "bool",
-                "help_text": "If enabled, editing files is restricted to the file owner by default and they have the ability to share access with the whole channel."
-            }
-        ]
+  "id": "com.collaboraonline.mattermost",
+  "name": "Collabora Online",
+  "description": "Allows users to edit/view documents with the help of Collabora Online.",
+  "homepage_url": "https://github.com/CollaboraOnline/collabora-mattermost",
+  "support_url": "https://github.com/CollaboraOnline/collabora-mattermost/issues",
+  "release_notes_url": "https://github.com/CollaboraOnline/collabora-mattermost/releases/latest",
+  "icon_path": "assets/icons/icon.svg",
+  "version": "1.2.0",
+  "min_server_version": "5.37.0",
+  "server": {
+    "executables": {
+      "linux-amd64": "server/dist/plugin-linux-amd64",
+      "linux-arm64": "server/dist/plugin-linux-arm64",
+      "darwin-amd64": "server/dist/plugin-darwin-amd64",
+      "darwin-arm64": "server/dist/plugin-darwin-arm64",
+      "windows-amd64": "server/dist/plugin-windows-amd64.exe"
     }
+  },
+  "webapp": {
+    "bundle_path": "webapp/dist/main.js"
+  },
+  "settings_schema": {
+    "header": "Collabora Online is a powerful LibreOffice-based online office suite with collaborative editing, which supports all major documents, spreadsheet and presentation file formats and works together with all modern browsers.",
+    "footer": "Please see https://www.collaboraoffice.com/integrations/mattermost-plugin/ for more information.",
+    "settings": [
+      {
+        "key": "WOPIAddress",
+        "type": "text",
+        "display_name": "Collabora Online Address:",
+        "help_text": "Collabora Online requires a separate server acting as a WOPI-like Client to provide editing capabilities. Please configure a Collabora Online server to start editing documents.",
+        "placeholder": "URL",
+        "default": ""
+      },
+      {
+        "key": "SkipSSLVerify",
+        "type": "bool",
+        "display_name": "Disable certificate verification (insecure):",
+        "help_text": "Enable if your Collabora Online server uses a self signed certificate."
+      },
+      {
+        "key": "EncryptionKey",
+        "display_name": "Token Encryption Key:",
+        "type": "generated",
+        "help_text": "The encryption key used to encrypt Collabora Online server access tokens.",
+        "regenerate_help_text": "Regenerates the encryption key for Collabora Online server. Regenerating this key invalidates any existing wopi file preview/edit sessions.",
+        "placeholder": "",
+        "default": null
+      },
+      {
+        "key": "FileEditPermissions",
+        "display_name": "File Edit Permissions:",
+        "type": "bool",
+        "help_text": "If enabled, editing files is restricted to the file owner by default and they have the ability to share access with the whole channel."
+      }
+    ]
+  }
 }

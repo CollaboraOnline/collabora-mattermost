@@ -1,8 +1,8 @@
 import qs from 'qs';
 
+import { Client4 } from 'mattermost-redux/client';
 import { ClientError } from '@mattermost/client/client4';
 import { Options } from '@mattermost/types/client4';
-import { Client4 } from 'mattermost-redux/client';
 
 import { FILE_EDIT_PERMISSIONS } from '@/constants';
 import { manifest } from '@/manifest';
@@ -105,7 +105,7 @@ export default class Client {
 
     const text = await response.text();
 
-    throw new ClientError(Client4.url, {
+    throw new ClientError(Client4.getUrl(), {
       message: text || '',
       status_code: response.status,
       url,

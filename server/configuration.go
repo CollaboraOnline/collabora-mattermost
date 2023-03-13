@@ -43,18 +43,18 @@ var (
 	}
 )
 
-// configuration captures the plugin's external configuration as exposed in the Mattermost server
-// configuration, as well as values computed from the configuration. Any public fields will be
-// deserialized from the Mattermost server configuration in OnConfigurationChange.
+// Configuration captures the plugin's external Configuration as exposed in the Mattermost server
+// Configuration, as well as values computed from the Configuration. Any public fields will be
+// deserialized from the Mattermost server Configuration in OnConfigurationChange.
 //
 // As plugins are inherently concurrent (hooks being called asynchronously), and the plugin
-// configuration can change at any time, access to the configuration must be synchronized. The
-// strategy used in this plugin is to guard a pointer to the configuration, and clone the entire
+// Configuration can change at any time, access to the Configuration must be synchronized. The
+// strategy used in this plugin is to guard a pointer to the Configuration, and clone the entire
 // struct whenever it changes. You may replace this with whatever strategy you choose.
 //
-// If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
+// If you add non-reference types to your Configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
-type configuration struct {
+type Configuration struct {
 	WOPIAddress         string
 	SkipSSLVerify       bool
 	EncryptionKey       string
@@ -62,19 +62,19 @@ type configuration struct {
 }
 
 // ToWebappConfig initializes the webapp config from configuration
-func (c *configuration) ToWebappConfig() *WebappConfig {
+func (c *Configuration) ToWebappConfig() *WebappConfig {
 	return &WebappConfig{
 		c.FileEditPermissions,
 	}
 }
 
 // Clone deep copies the configuration
-func (c *configuration) Clone() *configuration {
-	return &configuration{WOPIAddress: c.WOPIAddress}
+func (c *Configuration) Clone() *Configuration {
+	return &Configuration{WOPIAddress: c.WOPIAddress}
 }
 
 // ProcessConfiguration processes the config.
-func (c *configuration) ProcessConfiguration() error {
+func (c *Configuration) ProcessConfiguration() error {
 	// trim trailing slash or spaces from the WOPI address, if needed
 	c.WOPIAddress = strings.TrimSpace(c.WOPIAddress)
 	c.WOPIAddress = strings.Trim(c.WOPIAddress, "/")
@@ -84,7 +84,7 @@ func (c *configuration) ProcessConfiguration() error {
 }
 
 // IsValid checks if all needed fields are set.
-func (c *configuration) IsValid() error {
+func (c *Configuration) IsValid() error {
 	if !strings.HasPrefix(c.WOPIAddress, "http") {
 		return errors.New("please provide the WOPIAddress")
 	}
@@ -99,12 +99,12 @@ func (c *configuration) IsValid() error {
 // getConfiguration retrieves the active configuration under lock, making it safe to use
 // concurrently. The active configuration may change underneath the client of this method, but
 // the struct returned by this API call is considered immutable.
-func (p *Plugin) getConfiguration() *configuration {
+func (p *Plugin) getConfiguration() *Configuration {
 	p.configurationLock.RLock()
 	defer p.configurationLock.RUnlock()
 
 	if p.configuration == nil {
-		return &configuration{}
+		return &Configuration{}
 	}
 
 	return p.configuration
@@ -119,7 +119,7 @@ func (p *Plugin) getConfiguration() *configuration {
 // This method panics if setConfiguration is called with the existing configuration. This almost
 // certainly means that the configuration was modified without being cloned and may result in
 // an unsafe access.
-func (p *Plugin) setConfiguration(configuration *configuration) {
+func (p *Plugin) setConfiguration(configuration *Configuration) {
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 

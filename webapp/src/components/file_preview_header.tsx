@@ -88,7 +88,6 @@ export const FilePreviewHeader: FC<Props> = (props: Props) => {
         <div className="collabora-header-actions">
           <Button
             bsSize="large"
-            bsStyle="large"
             title="Download"
             aria-label="Download"
             className="collabora-header-action-button"
@@ -100,7 +99,6 @@ export const FilePreviewHeader: FC<Props> = (props: Props) => {
           </Button>
           <Button
             bsSize="large"
-            bsStyle="large"
             disabled={!canCurrentUserEdit}
             onClick={toggleEditing}
             className="collabora-header-action-button"
@@ -115,7 +113,7 @@ export const FilePreviewHeader: FC<Props> = (props: Props) => {
           </Button>
           {showEditPermissionChangeOption && (
             <Button
-              bsStyle="large"
+              bsSize="large"
               onClick={toggleCanChannelEdit}
               className="collabora-header-action-button"
               title={canChannelEdit ? 'Everyone in the channel can edit.' : 'Only you can edit.'}
