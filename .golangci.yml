@@ -19,6 +19,11 @@ linters-settings:
       - fieldalignment
   misspell:
     locale: US
+  revive:
+    enableAllRules: true
+    rules:
+      - name: exported
+        disabled: true
 
 linters:
   disable-all: true
@@ -42,6 +47,24 @@ linters:
     - unconvert
     - unused
     - whitespace
+    - unparam
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - makezero
+    - prealloc
+    - asciicheck
+    - depguard
+    - dogsled
+    - dupl
+    - godot
+    - goerr113
+    - goheader
+    - gomodguard
+    - goprintffuncname
+    - nolintlint
+    - gocyclo
 
 issues:
   exclude-rules:

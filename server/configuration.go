@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	// WopiFiles maps file extension with file action & url
+	// WopiFiles maps file extension with file action & url.
 	WopiFiles map[string]WopiFile
 
-	// validEncryptionKeyChars ensures that the encryption key only contains letters and numbers
+	// validEncryptionKeyChars ensures that the encryption key only contains letters and numbers.
 	validEncryptionKeyChars = regexp.MustCompile("[^a-zA-Z0-9]+")
 
-	// TemplateFromExt stores the name of the template file corresponding to each file extension
+	// TemplateFromExt stores the name of the template file corresponding to each file extension.
 	TemplateFromExt = map[string]string{
 		"docx": "docxtemplate.docx",
 		"odt":  "odttemplate.odt",
@@ -27,16 +27,16 @@ var (
 		"ods":  "template.ods",
 	}
 
-	// WebsocketEventConfigUpdated is the websocket event called to update plugin config on clients' webapp
+	// WebsocketEventConfigUpdated is the websocket event called to update plugin config on clients' webapp.
 	WebsocketEventConfigUpdated = "config_updated"
 
-	// PermissionOwner allows only the owner to edit the file
+	// PermissionOwner allows only the owner to edit the file.
 	PermissionOwner = "owner"
 
-	// PermissionChannel allows only all channel members to edit the file
+	// PermissionChannel allows only all channel members to edit the file.
 	PermissionChannel = "channel"
 
-	// AllowedFilePermissions is the list of file permissions
+	// AllowedFilePermissions is the list of file permissions.
 	AllowedFilePermissions = map[string]bool{
 		PermissionOwner:   true,
 		PermissionChannel: true,
@@ -61,29 +61,27 @@ type Configuration struct {
 	FileEditPermissions bool
 }
 
-// ToWebappConfig initializes the webapp config from configuration
+// ToWebappConfig initializes the webapp config from the Configuration.
 func (c *Configuration) ToWebappConfig() *WebappConfig {
 	return &WebappConfig{
 		c.FileEditPermissions,
 	}
 }
 
-// Clone deep copies the configuration
+// Clone deep copies the Configuration.
 func (c *Configuration) Clone() *Configuration {
 	return &Configuration{WOPIAddress: c.WOPIAddress}
 }
 
-// ProcessConfiguration processes the config.
-func (c *Configuration) ProcessConfiguration() error {
+// ProcessConfiguration processes the Configuration.
+func (c *Configuration) ProcessConfiguration() {
 	// trim trailing slash or spaces from the WOPI address, if needed
 	c.WOPIAddress = strings.TrimSpace(c.WOPIAddress)
 	c.WOPIAddress = strings.Trim(c.WOPIAddress, "/")
 	c.EncryptionKey = validEncryptionKeyChars.ReplaceAllString(c.EncryptionKey, "")
-
-	return nil
 }
 
-// IsValid checks if all needed fields are set.
+// IsValid checks if all needed fields for Configuration are set.
 func (c *Configuration) IsValid() error {
 	if !strings.HasPrefix(c.WOPIAddress, "http") {
 		return errors.New("please provide the WOPIAddress")
@@ -137,7 +135,7 @@ func (p *Plugin) setConfiguration(configuration *Configuration) {
 	p.configuration = configuration
 }
 
-// LoadWopiFileInfo loads the WOPI file data to memory
+// LoadWopiFileInfo loads the WOPI file data to memory.
 func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 	client := p.GetHTTPClient()
 	resp, err := client.Get(wopiAddress + "/hosting/discovery")
@@ -152,7 +150,7 @@ func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 		return err
 	}
 
-	// wopiData contains the XML from <WOPI>/hosting/discovery
+	// wopiData contains the XML from `<WOPI>/hosting/discovery`.
 	var wopiData WopiDiscovery
 	if err := xml.Unmarshal(body, &wopiData); err != nil {
 		p.client.Log.Error("WOPI request error. Failed to unmarshal WOPI XML. Please check the WOPI address.", err.Error())

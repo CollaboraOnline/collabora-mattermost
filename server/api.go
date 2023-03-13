@@ -20,7 +20,7 @@ const (
 	HeaderMattermostUserID = "Mattermost-User-Id"
 )
 
-// InitAPI initializes the REST API
+// InitAPI initializes the REST API.
 func (p *Plugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
 	r.Use(p.withRecovery)
@@ -57,7 +57,7 @@ func returnStatusOK(w http.ResponseWriter) {
 	_, _ = w.Write([]byte(model.MapToJSON(m)))
 }
 
-// withRecovery allows recovery from panics
+// withRecovery allows recovery from panics.
 func (p *Plugin) withRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -162,7 +162,7 @@ func (p *Plugin) setFilePermissions(fileID, userID, permission string, bypassFil
 	return nil
 }
 
-// createFileFromTemplate creates a new file from template in the given channel
+// createFileFromTemplate creates a new file from template in the given channel.
 func (p *Plugin) createFileFromTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	channelID := params["channelID"]
@@ -269,7 +269,7 @@ func (p *Plugin) getClientFileInfos(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// returnWopiFileList returns the list with file extensions and actions associated with these files
+// returnWopiFileList returns the list with file extensions and actions associated with these files.
 func (p *Plugin) returnWopiFileList(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(WopiFiles); err != nil {
@@ -278,7 +278,7 @@ func (p *Plugin) returnWopiFileList(w http.ResponseWriter, _ *http.Request) {
 }
 
 // returnCollaboraOnlineFileURL returns the URL and token that the client will use to
-// load Collabora Online in the iFrame
+// load Collabora Online in the iFrame.
 func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Request) {
 	// retrieve fileID and file info
 	fileID := r.URL.Query().Get("file_id")
@@ -333,7 +333,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// getWopiFileContents is used by Collabora Online server to get the contents of a file
+// getWopiFileContents is used by Collabora Online server to get the contents of a file.
 func (p *Plugin) getWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileID := params["fileID"]
@@ -377,7 +377,7 @@ func (p *Plugin) getWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	_, _ = io.Copy(w, fileContent)
 }
 
-// saveWopiFileContents is used by Collabora Online server to save the updated contents of a file
+// saveWopiFileContents is used by Collabora Online server to save the updated contents of a file.
 func (p *Plugin) saveWopiFileContents(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileID := params["fileID"]
@@ -415,7 +415,7 @@ func (p *Plugin) saveWopiFileContents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// save file received from Collabora Online
+	// save the file received from Collabora Online using the appropriate file backend.
 	if _, err := p.WriteFile(r.Body, fileInfo.Path); err != nil {
 		p.client.Log.Error("Failed to save the updated file contents.", "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -459,7 +459,7 @@ func (p *Plugin) generateWopiFileInfo(wopiToken WopiToken, userCanEdit bool) (*W
 	return wopiFileInfo, nil
 }
 
-// getWopiFileInfo returns the file information, used by Collabora Online
+// getWopiFileInfo returns the file information, used by Collabora Online.
 func (p *Plugin) getWopiFileInfo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileID := params["fileID"]
@@ -484,7 +484,8 @@ func (p *Plugin) getWopiFileInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 // getWopiFileInfoEditable returns the file information, used by Collabora Online
-// with editable set to true
+// with editable set to true.
+// TODO: refactor this to same function as getWopiFileInfo.
 func (p *Plugin) getWopiFileInfoEditable(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileID := params["fileID"]

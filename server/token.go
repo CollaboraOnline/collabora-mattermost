@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// EncodeToken creates a token for WOPI
+// EncodeToken creates a token for WOPI.
 func (p *Plugin) EncodeToken(userID string, fileID string) string {
 	config := p.getConfiguration()
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), &WopiToken{
@@ -22,7 +22,7 @@ func (p *Plugin) EncodeToken(userID string, fileID string) string {
 	return signedString
 }
 
-// DecodeToken decodes a token string and returns WopiToken and isValid
+// DecodeToken decodes a token string and returns WopiToken and isValid.
 func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	config := p.getConfiguration()
 	wopiToken := WopiToken{}
@@ -38,8 +38,8 @@ func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	return wopiToken, true
 }
 
-// GetWopiTokenFromURI decodes a token string from the URI
-// returns WopiToken and error
+// GetWopiTokenFromURI decodes a token string from the URI.
+// returns WopiToken and error.
 func (p *Plugin) GetWopiTokenFromURI(uri string) (WopiToken, error) {
 	parsedURL, parseURLErr := url.Parse(uri)
 	if parseURLErr != nil {

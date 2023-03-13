@@ -14,7 +14,7 @@ import (
 	root "github.com/CollaboraOnline/collabora-mattermost"
 )
 
-// Plugin required by plugin
+// Plugin struct is required by the plugin.
 type Plugin struct {
 	plugin.MattermostPlugin
 
@@ -33,7 +33,7 @@ type Plugin struct {
 	siteURL string
 }
 
-// OnActivate is called when the plugin is activated
+// OnActivate is called when the plugin is activated.
 func (p *Plugin) OnActivate() error {
 	p.client = pluginapi.NewClient(p.API, p.Driver)
 	p.router = p.InitAPI()
@@ -62,7 +62,7 @@ func (p *Plugin) registerSiteURL() error {
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	// if running for the first time
+	// if running the plugin for the first time, then run onActivate.
 	if p.client == nil {
 		if err := p.OnActivate(); err != nil {
 			return err
@@ -76,10 +76,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	if err := configuration.ProcessConfiguration(); err != nil {
-		p.client.Log.Error("Error in ProcessConfiguration.", "Error", err.Error())
-		return errors.Wrap(err, "failed to process configuration")
-	}
+	configuration.ProcessConfiguration()
 
 	if err := configuration.IsValid(); err != nil {
 		return errors.Wrap(err, "failed to validate configuration")
@@ -89,23 +86,29 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "could not load wopi file info")
 	}
 
+	if err := p.TestFileStoreConnection(); err != nil {
+		return errors.Wrap(err, "could not connect to the filestore backend")
+	}
+
 	p.setConfiguration(configuration)
 
-	// send the updated config to the webapp
+	// Send the updated config to the webapp.
 	p.client.Frontend.PublishWebSocketEvent(WebsocketEventConfigUpdated, configuration.ToWebappConfig().ToMap(), &model.WebsocketBroadcast{})
 
 	return nil
 }
 
 // UserHasLoggedIn is invoked after a user has logged in.
-func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
+func (p *Plugin) UserHasLoggedIn(_ *plugin.Context, user *model.User) {
 	// send the config to the webapp
 	config := p.getConfiguration().ToWebappConfig()
-	p.client.Frontend.PublishWebSocketEvent(WebsocketEventConfigUpdated, config.ToMap(), &model.WebsocketBroadcast{})
+	p.client.Frontend.PublishWebSocketEvent(WebsocketEventConfigUpdated, config.ToMap(), &model.WebsocketBroadcast{
+		UserId: user.Id,
+	})
 }
 
 // ServeHTTP handles HTTP requests for the plugin.
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.client.Log.Debug("New plugin request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	p.router.ServeHTTP(w, r)
 }
