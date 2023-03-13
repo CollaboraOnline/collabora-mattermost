@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/xml"
-	"io/ioutil"
+	"io"
 	"reflect"
 	"regexp"
 	"strings"
@@ -146,7 +146,7 @@ func (p *Plugin) LoadWopiFileInfo(wopiAddress string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		p.client.Log.Error("WOPI request error. Failed to read WOPI request body. Please check the WOPI address.", err.Error())
 		return err
