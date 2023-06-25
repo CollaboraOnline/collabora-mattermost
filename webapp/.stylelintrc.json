@@ -1,0 +1,8 @@
+{
+  "extends": ["stylelint-config-standard", "stylelint-config-sass-guidelines"],
+  "rules": {
+    "indentation": 4,
+    "order/properties-alphabetical-order": null,
+    "declaration-block-no-duplicate-properties": true
+  }
+}

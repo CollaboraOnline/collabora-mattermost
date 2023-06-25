@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "reselect": ["node_modules/@mattermost/webapp/packages/reselect/src"],
+      "@mattermost/client": ["node_modules/@mattermost/webapp/packages/client/src"],
+      "@mattermost/client/*": ["node_modules/@mattermost/webapp/packages/client/src/*"],
+      "@mattermost/types/*": ["node_modules/@mattermost/types/lib/*"],
+      "mattermost-redux/*": ["node_modules/@mattermost/webapp/packages/mattermost-redux/src/*"]
+    },
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,21 +21,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "noEmit": true,
     "experimentalDecorators": true,
-    "jsx": "react",
-    "baseUrl": "./src",
-    "typeRoots": [ "./src/types", "./node_modules/@types"],
+    "jsx": "react"
   },
-  "include": [
-    "src",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "!node_modules/@types"
-  ]
+  "include": ["src", "tests"],
+  "exclude": ["dist", "node_modules", "!node_modules/@types"]
 }

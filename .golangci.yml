@@ -3,6 +3,9 @@ run:
   modules-download-mode: readonly
 
 linters-settings:
+  goconst:
+    min-len: 2
+    min-occurrences: 2
   gofmt:
     simplify: true
   goimports:
@@ -16,17 +19,22 @@ linters-settings:
       - fieldalignment
   misspell:
     locale: US
+  revive:
+    enableAllRules: true
+    rules:
+      - name: exported
+        disabled: true
 
 linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - errcheck
+    - goconst
     - gocritic
     - gofmt
     - goimports
-    - golint
+    - revive
     - gosec
     - gosimple
     - govet
@@ -34,13 +42,29 @@ linters:
     - misspell
     - nakedret
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unused
-    - varcheck
     - whitespace
+    - unparam
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - makezero
+    - prealloc
+    - asciicheck
+    - depguard
+    - dogsled
+    - dupl
+    - godot
+    - goerr113
+    - goheader
+    - gomodguard
+    - goprintffuncname
+    - nolintlint
+    - gocyclo
 
 issues:
   exclude-rules:
@@ -58,4 +82,5 @@ issues:
     - path: _test\.go
       linters:
         - bodyclose
+        - goconst
         - scopelint # https://github.com/kyoh86/scopelint/issues/4
