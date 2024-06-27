@@ -16,7 +16,7 @@ Below you can see a list with the supported formats:
 
 Please note that files like .pdf, .jpg, .svg, and others can only be viewed and not edited.
   
-Collabora Online uses a WOPI-like protocol (client) to access the files on your Mattermost server (host). You can read more about it on https://wopi.readthedocs.io. Hence, you will also need a Collabora Online instance to use the plugin.
+Collabora Online uses a WOPI-like protocol (client) to access the files on your Mattermost server (host). You can read more about it on <https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/>. Hence, you will also need a Collabora Online instance to use the plugin.
 You can build your own, or conveniently use a version of our [CODE edition](https://www.collaboraoffice.com/code/).
 
 ## Installation
@@ -78,8 +78,9 @@ docker run -t -d -p 127.0.0.1:9980:9980 -p [::1]:9980:9980 -e 'domain=my\\.-loca
 - Make sure you have following components installed:
     - Go - v1.16 - [Getting Started](https://golang.org/doc/install)
       > **Note:** If you have installed Go to a custom location, make sure the `$GOROOT` variable is set properly. Refer [Installing to a custom location](https://golang.org/doc/install#install).
-    - NodeJS - v14.17 and NPM - [Downloading and installing Node.js and npm](https://docs.npmjs.com/getting-started/installing-node).
-    - Make
+    - NodeJS - v14.17 and NPM - [Downloading and installing Node.js and npm](https://docs.npmjs.com/getting-started/installing-node). Later version of NodeJS (>= 16) do not work.
+    - make
+    - golangci-lint
 
 - Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`.
 To learn more about plugins, see [plugin documentation](https://developers.mattermost.com/extend/plugins/).
