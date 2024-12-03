@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -322,7 +323,9 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + (p.getBaseAPIURL() + "/wopi/files/" + fileID)
+	wopiSrc := p.getBaseAPIURL() + "/wopi/files/" + fileID
+	encodedWopiSrc := base64.RawURLEncoding.EncodeToString([]byte(wopiSrc))
+	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + encodedWopiSrc
 	wopiToken := p.EncodeToken(userID, fileID)
 
 	response := struct {
