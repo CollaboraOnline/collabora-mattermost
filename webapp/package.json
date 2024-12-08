@@ -127,6 +127,8 @@
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup.tsx"
     ],
-    "testURL": "http://localhost:8065"
+    "testEnvironmentOptions": {
+      "url": "http://localhost:8065"
+    }
   }
 }
