@@ -158,7 +158,7 @@ func (p *Plugin) setFilePermissions(fileID, userID, permission string, bypassFil
 	post.AddProp(filePermissionsKey, permission)
 	if _, postErr := p.API.UpdatePost(post); postErr != nil {
 		p.API.LogError("Failed to update post", "Error", postErr.Error())
-		return errors.Wrap(postError, "error when saving post with updated permissions")
+		return errors.Wrap(postErr, "error when saving post with updated permissions")
 	}
 
 	return nil
