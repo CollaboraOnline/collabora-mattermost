@@ -1,10 +1,10 @@
-import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
-import {AnyAction} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
+import React, {type FC, useCallback, useEffect, useMemo, useState} from 'react';
+import type {AnyAction} from 'redux';
+import type {ThunkDispatch} from 'redux-thunk';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {FileInfo} from 'mattermost-redux/types/files';
-import {GlobalState} from 'mattermost-redux/types/store';
+import type {FileInfo} from '@mattermost/types/files';
+import type {GlobalState} from '@mattermost/types/store';
 
 import {updateFileEditPermission} from 'actions/file';
 import {closeFilePreview} from 'actions/preview';

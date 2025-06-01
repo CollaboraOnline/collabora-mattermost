@@ -1,7 +1,7 @@
 {
   "extends": [
       "eslint:recommended",
-      "plugin:react-hooks/recommended"
+      "plugin:@mattermost/react"
   ],
   "parserOptions": {
     "ecmaVersion": 8,
@@ -13,7 +13,7 @@
       "experimentalObjectRestSpread": true
     }
   },
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "plugins": [
     "react",
     "import"
@@ -133,6 +133,7 @@
     "global-require": 2,
     "guard-for-in": 2,
     "id-blacklist": 0,
+    "header/header": 0,
     "import/no-unresolved": 2,
     "import/order": [
       "error",
@@ -639,6 +640,20 @@
     ]
   },
   "overrides": [
+    {
+      "files": ["tests/**", "**/*.test.*"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "func-names": 0,
+        "global-require": 0,
+        "new-cap": 0,
+        "no-console": 0,
+        "prefer-arrow-callback": 0,
+        "no-import-assign": 0
+      }
+    },
     {
       "files": ["**/*.tsx", "**/*.ts"],
       "extends": "plugin:@typescript-eslint/recommended",

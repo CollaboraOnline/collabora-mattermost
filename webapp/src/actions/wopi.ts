@@ -1,7 +1,7 @@
-import {AnyAction, Dispatch} from 'redux';
-import {ThunkAction} from 'redux-thunk';
+import type {AnyAction, Dispatch} from 'redux';
+import type {ThunkAction} from 'redux-thunk';
 
-import {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
+import type {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
 
 import Client from '../client';
 import Constants from '../constants';
@@ -18,7 +18,7 @@ export function getCollaboraFileURL(fileID: string): DispatchFunc {
     };
 }
 
-export function getWopiFilesList(): ThunkAction<Promise<ActionResult>, any, undefined, AnyAction> {
+export function getWopiFilesList(): ThunkAction<Promise<ActionResult>, unknown, undefined, AnyAction> {
     return async (dispatch: Dispatch) => {
         let data = null;
         try {

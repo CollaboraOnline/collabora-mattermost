@@ -1,5 +1,6 @@
-import React, {FC, useCallback, useEffect} from 'react';
+import React, {type FC, useCallback, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+// eslint-disable-next-line no-restricted-imports
 import {Modal, Tooltip, OverlayTrigger, FormGroup, FormControl} from 'react-bootstrap';
 import clsx from 'clsx';
 
@@ -8,7 +9,7 @@ import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 import {closeFileCreateModal, createFileFromTemplate} from 'actions/file';
 import {createFileModal} from 'selectors';
 
-import {FILE_TEMPLATES, TEMPLATE_TYPES} from '../constants';
+import {FILE_TEMPLATES, type TEMPLATE_TYPES} from '../constants';
 
 type FileCreateModalSelector = {
     visible: boolean;
@@ -26,7 +27,7 @@ export const FileCreateModal: FC = () => {
     };
 
     const [fileExt, setFileExt] = React.useState('');
-    const updateFileExt = (e: React.ChangeEvent<FormControl>) => {
+    const updateFileExt = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFileExt((e as unknown as React.ChangeEvent<HTMLSelectElement>).target.value);
     };
 
@@ -90,7 +91,8 @@ export const FileCreateModal: FC = () => {
                                     onTouchEnd={onClear}
                                 >
                                     <OverlayTrigger
-                                        delayShow={400}
+                                        delay={400}
+
                                         placement={'bottom'}
                                         overlay={(
                                             <Tooltip id={'InputClearTooltip'}>
@@ -113,13 +115,13 @@ export const FileCreateModal: FC = () => {
                         <FormGroup controlId='formControlsSelect'>
                             <FormControl
                                 className='collabora-file-ext-select'
-                                componentClass='select'
+                                type='select'
                                 placeholder='Select File Extension'
                                 value={fileExt}
                                 onChange={updateFileExt}
                             >
                                 {
-                                    FILE_TEMPLATES[templateType].map((item) => (
+                                    FILE_TEMPLATES[templateType].map((item: string) => (
                                         <option
                                             key={item}
                                             value={item}
