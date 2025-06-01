@@ -1,13 +1,13 @@
 import React from 'react';
-import {AnyAction, Store} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
+import type {AnyAction, Store} from 'redux';
+import type {ThunkDispatch} from 'redux-thunk';
 
-//@ts-ignore PluginRegistry doesn't have types yet
-import {PluginRegistry} from 'mattermost-webapp/plugins/registry';
+//@ts-ignore PluginRegistry has no type
+import type {PluginRegistry} from '@mattermost/types/plugins/registry';
 
-import {GlobalState} from 'mattermost-redux/types/store';
-import {FileInfo} from 'mattermost-redux/types/files';
-import {WebSocketMessage} from 'mattermost-redux/types/websocket';
+import type {GlobalState} from '@mattermost/types/store';
+import type {FileInfo} from '@mattermost/types/files';
+import type {WebSocketMessage} from '@mattermost/client';
 
 import Actions from 'actions';
 import {wopiFilesList} from 'selectors';

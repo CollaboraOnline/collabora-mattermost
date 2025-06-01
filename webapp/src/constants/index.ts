@@ -1,7 +1,9 @@
-import {Dictionary} from 'mattermost-redux/types/utilities';
+//@ts-ignore Dictionary has no type
+import type {Dictionary} from 'mattermost-redux/types/utilities';
 
 import * as ACTION_TYPES from './action_types';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum TEMPLATE_TYPES {
     DOCUMENT = 'document',
     PRESENTATION = 'presentation',
@@ -21,6 +23,7 @@ export const CHANNEL_TYPES = {
     CHANNEL_GROUP: 'G',
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum FILE_EDIT_PERMISSIONS {
     PERMISSION_OWNER = 'owner',
     PERMISSION_CHANNEL = 'channel',

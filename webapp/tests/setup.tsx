@@ -1,1 +1,4 @@
-import 'mattermost-webapp/tests/setup';
+/* eslint-disable */
+// import '@mattermost/webapp/tests/setup';
+
+export {};

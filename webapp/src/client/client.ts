@@ -1,11 +1,11 @@
 import qs from 'qs';
 
 import {Client4} from 'mattermost-redux/client';
-import {ClientError} from 'mattermost-redux/client/client4';
-import {Options} from 'mattermost-redux/types/client4';
+import {ClientError} from '@mattermost/client';
+import type {Options} from '@mattermost/types/client4';
 
 import {id as pluginId} from '../manifest';
-import {FILE_EDIT_PERMISSIONS} from '../constants';
+import type {FILE_EDIT_PERMISSIONS} from '../constants';
 
 export default class Client {
     apiURL: string;

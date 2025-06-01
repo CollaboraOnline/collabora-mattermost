@@ -1,8 +1,8 @@
 import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
 
-import {FileInfo} from 'mattermost-redux/types/files';
-import {GlobalState} from 'mattermost-redux/types/store';
+import type {FileInfo} from '@mattermost/types/files';
+import type {GlobalState} from '@mattermost/types/store';
 import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {getChannel} from 'mattermost-redux/selectors/entities/channels';
 
