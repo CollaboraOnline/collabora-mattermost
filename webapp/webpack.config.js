@@ -44,7 +44,7 @@ module.exports = {
             'node_modules',
             path.resolve(__dirname),
         ],
-        extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
     module: {
         rules: [
