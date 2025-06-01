@@ -1,8 +1,8 @@
-import React, {FC, useCallback, useEffect, useState} from 'react';
+import React, {type FC, useCallback, useEffect, useState} from 'react';
 
 import {useDispatch} from 'react-redux';
 
-import {FileInfo} from 'mattermost-redux/types/files';
+import type {FileInfo} from '@mattermost/types/files';
 
 import {getCollaboraFileURL} from 'actions/wopi';
 
@@ -28,6 +28,7 @@ export const WopiFilePreview: FC<Props> = (props: Props) => {
 
         setLoading(true);
         setError(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dispatchResult = await dispatch(getCollaboraFileURL(selectedFileID) as any);
         if (dispatchResult.error) {
             setLoading(false);

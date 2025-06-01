@@ -1,7 +1,7 @@
-import {AnyAction, Dispatch} from 'redux';
-import {ThunkAction, ThunkDispatch} from 'redux-thunk';
-import {ActionResult} from 'mattermost-redux/types/actions';
-import {GlobalState} from 'mattermost-webapp/types/store/index';
+import type {AnyAction, Dispatch} from 'redux';
+import type {ThunkAction, ThunkDispatch} from 'redux-thunk';
+import type {ActionResult} from 'mattermost-redux/types/actions';
+import type {GlobalState} from '@mattermost/types/store';
 
 import Constants from '../constants';
 import Client from 'client';
@@ -15,7 +15,7 @@ export const setConfig = (data: unknown) => {
     };
 };
 
-export const getConfig = (): ThunkAction<Promise<ActionResult>, any, undefined, AnyAction> => {
+export const getConfig = (): ThunkAction<Promise<ActionResult>, GlobalState, undefined, AnyAction> => {
     return async (dispatch: ThunkDispatch<GlobalState, undefined, AnyAction>) => {
         let data = null;
         try {

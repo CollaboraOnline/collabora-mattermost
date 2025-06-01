@@ -1,1 +1,2 @@
-import 'mattermost-webapp/tests/setup';
+/* eslint-disable */
+import './setup';

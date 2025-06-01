@@ -1,9 +1,9 @@
 import {createSelector} from 'reselect';
 
-import {GlobalState} from 'mattermost-redux/types/store';
+import type {GlobalState} from '@mattermost/types/store';
+import type {FileInfo} from '@mattermost/types/files';
 import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
-import {FileInfo} from 'mattermost-redux/types/files';
 
 import {FILE_EDIT_PERMISSIONS} from '../constants';
 import {id as pluginId} from '../manifest';
@@ -45,7 +45,7 @@ export function makeGetCollaboraFilePermissions(): (state: GlobalState, fileInfo
                 return FILE_EDIT_PERMISSIONS.PERMISSION_CHANNEL;
             }
 
-            return post?.props?.[pluginId + '_file_permissions_' + fileID];
+            return post?.props?.[pluginId + '_file_permissions_' + fileID] as FILE_EDIT_PERMISSIONS;
         },
     );
 }

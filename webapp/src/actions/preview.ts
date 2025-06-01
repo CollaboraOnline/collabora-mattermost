@@ -1,6 +1,6 @@
-import {Dispatch} from 'redux';
+import type {Dispatch} from 'redux';
 
-import {FileInfo} from 'mattermost-redux/types/files';
+import type {FileInfo} from '@mattermost/types/files';
 
 import Constants from '../constants';
 

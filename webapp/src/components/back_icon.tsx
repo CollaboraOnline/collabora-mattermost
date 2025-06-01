@@ -1,4 +1,4 @@
-import React, {ButtonHTMLAttributes} from 'react';
+import React, {type ButtonHTMLAttributes} from 'react';
 import {Button} from 'react-bootstrap';
 
 export default function BackIcon(props: ButtonHTMLAttributes<unknown>) {

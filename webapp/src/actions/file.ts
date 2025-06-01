@@ -1,8 +1,8 @@
-import {Dispatch} from 'redux';
+import type {Dispatch} from 'redux';
 
-import {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
+import type {ActionResult, DispatchFunc} from 'mattermost-redux/types/actions';
 
-import Constants, {FILE_EDIT_PERMISSIONS, TEMPLATE_TYPES} from '../constants';
+import Constants, {type FILE_EDIT_PERMISSIONS, type TEMPLATE_TYPES} from '../constants';
 import Client from '../client';
 
 export const showFileCreateModal = (templateType: TEMPLATE_TYPES) => (dispatch: Dispatch) => {

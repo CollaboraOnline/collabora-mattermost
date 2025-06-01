@@ -1,8 +1,8 @@
-import React, {FC} from 'react';
+import React, {type FC} from 'react';
 import clsx from 'clsx';
 import {Button} from 'react-bootstrap';
 
-import {FileInfo} from 'mattermost-redux/types/files';
+import type {FileInfo} from '@mattermost/types/files';
 
 import Client from 'client';
 import {useChannelName} from 'hooks/useChannelName';
@@ -93,21 +93,18 @@ export const FilePreviewHeader: FC<Props> = (props: Props) => {
                 </div>
                 <div className='collabora-header-actions'>
                     <Button
-                        bsSize='large'
-                        bsStyle='large'
+                        size='lg'
                         title='Download'
                         aria-label='Download'
                         className='collabora-header-action-button'
                         href={Client.getFileUrl(fileInfo.id)}
                         target='_blank'
                         rel='noopener noreferrer'
-                        download={true}
                     >
                         <i className='fa fa-cloud-download'/>
                     </Button>
                     <Button
-                        bsSize='large'
-                        bsStyle='large'
+                        size='lg'
                         disabled={!canCurrentUserEdit}
                         onClick={toggleEditing}
                         className='collabora-header-action-button'
@@ -127,7 +124,7 @@ export const FilePreviewHeader: FC<Props> = (props: Props) => {
                     {
                         showEditPermissionChangeOption && (
                             <Button
-                                bsStyle='large'
+                                size='lg'
                                 onClick={toggleCanChannelEdit}
                                 className='collabora-header-action-button'
                                 title={canChannelEdit ? 'Everyone in the channel can edit.' : 'Only you can edit.'}

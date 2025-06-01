@@ -1,9 +1,9 @@
-import React, {FC, useCallback, useMemo, useState} from 'react';
+import React, {type FC, useCallback, useMemo, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {Button} from 'react-bootstrap';
 
-import {FileInfo} from 'mattermost-redux/types/files';
-import {GlobalState} from 'mattermost-redux/types/store';
+import type {FileInfo} from '@mattermost/types/files';
+import type {GlobalState} from '@mattermost/types/store';
 
 import WopiFilePreview from 'components/wopi_file_preview';
 import {enableEditPermissions, makeGetCollaboraFilePermissions, makeGetIsCurrentUserFileOwner} from 'selectors';
