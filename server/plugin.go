@@ -42,11 +42,11 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to validate configuration")
 	}
 
+	p.setConfiguration(configuration)
+
 	if err := p.LoadWopiFileInfo(configuration.WOPIAddress); err != nil {
 		return errors.Wrap(err, "could not load wopi file info")
 	}
-
-	p.setConfiguration(configuration)
 
 	// send the updated config to the webapp
 	p.API.PublishWebSocketEvent(WebsocketEventConfigUpdated, configuration.ToWebappConfig().ToMap(), &model.WebsocketBroadcast{})
