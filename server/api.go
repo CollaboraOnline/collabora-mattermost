@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"runtime/debug"
@@ -324,7 +324,7 @@ func (p *Plugin) returnCollaboraOnlineFileURL(w http.ResponseWriter, r *http.Req
 	}
 
 	wopiSrc := p.getBaseAPIURL() + "/wopi/files/" + fileID
-	encodedWopiSrc := base64.RawURLEncoding.EncodeToString([]byte(wopiSrc))
+	encodedWopiSrc := url.QueryEscape(wopiSrc)
 	wopiURL := WopiFiles[strings.ToLower(fileInfo.Extension)].URL + "WOPISrc=" + encodedWopiSrc
 	wopiToken := p.EncodeToken(userID, fileID)
 
