@@ -28,7 +28,7 @@ export default class Plugin {
         const state = store.getState();
         const wopiFiles = wopiFilesList(state);
         return Boolean(wopiFiles?.[fileInfo.extension]);
-    }
+    };
 
     public initialize(registry: PluginRegistry, store: Store<GlobalState>): void {
         registry.registerReducer(Reducer);

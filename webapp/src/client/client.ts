@@ -18,13 +18,13 @@ export default class Client {
 
     getConfig = () => {
         return this.doGet(`${this.baseURL}/config`);
-    }
+    };
 
     updateFileEditPermission = (fileID: string, permission: FILE_EDIT_PERMISSIONS) => {
         const params = {permission};
         const url = `${this.baseURL}/files/${fileID}/access${this.buildQueryString(params)}`;
         return this.doPost(url);
-    }
+    };
 
     createFileFromTemplate = (channelID: string, name: string, ext: string) => {
         const params = {name, ext};
@@ -38,7 +38,7 @@ export default class Client {
     getWopiFilesList = () => {
         // fetch wopiFiles, a JSON with file extensions, actions (view/edit) and the Collabora Online URL where the action is done
         return this.doGet(this.baseURL + '/wopiFileList');
-    }
+    };
 
     getCollaboraOnlineURL = (fileID: string) => {
         // fetch the Collabora Online URL & token where the file will be edited
@@ -47,7 +47,7 @@ export default class Client {
         };
         const url = `${this.baseURL}/collaboraURL${this.buildQueryString(params)}`;
         return this.doGet(url);
-    }
+    };
 
     doGet = async (url: string, headers: Record<string, string> = {}) => {
         const options = {
@@ -55,7 +55,7 @@ export default class Client {
             headers,
         };
         return this.doFetch(url, options);
-    }
+    };
 
     doPost = async (url: string, body?: BodyInit, headers: Record<string, string> = {}) => {
         const options = {
@@ -64,7 +64,7 @@ export default class Client {
             headers,
         };
         return this.doFetch(url, options);
-    }
+    };
 
     doDelete = async (url: string, body: BodyInit, headers: Record<string, string> = {}) => {
         const options = {
@@ -72,7 +72,7 @@ export default class Client {
             headers,
         };
         return this.doFetch(url, options);
-    }
+    };
 
     doPut = async (url: string, body: BodyInit, headers: Record<string, string> = {}) => {
         const options = {
@@ -81,7 +81,7 @@ export default class Client {
             headers,
         };
         return this.doFetch(url, options);
-    }
+    };
 
     doFetch = async (url: string, options: Options = {}) => {
         const {data} = await this.doFetchWithResponse(url, options);
