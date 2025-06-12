@@ -10,7 +10,6 @@ linters-settings:
   golint:
     min-confidence: 0
   govet:
-    check-shadowing: true
     enable-all: true
     disable:
       - fieldalignment
@@ -21,25 +20,22 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - errcheck
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
+    - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unused
-    - varcheck
     - whitespace
 
 issues:
