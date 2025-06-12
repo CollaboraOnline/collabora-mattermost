@@ -38,7 +38,7 @@ export const WopiFilePreview: FC<Props> = (props: Props) => {
         setLoading(false);
         setError(false);
 
-        const fileData = dispatchResult.data as {url: string, access_token: string};
+        const fileData = dispatchResult.data as {url: string; access_token: string};
 
         //as the request to Collabora Online should be of POST type, a form is used to submit it.
         (document.getElementById('collabora-submit-form') as HTMLFormElement).action = fileData.url + (props.editable ? '/edit' : '');
