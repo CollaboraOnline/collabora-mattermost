@@ -101,7 +101,7 @@ func handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request))
 	}
 }
 
-func (p *Plugin) getWebappConfig(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) getWebappConfig(w http.ResponseWriter, _ *http.Request) {
 	var config = p.getConfiguration().ToWebappConfig()
 
 	responseJSON, _ := json.Marshal(config)

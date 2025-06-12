@@ -55,14 +55,14 @@ func (p *Plugin) OnConfigurationChange() error {
 }
 
 // UserHasLoggedIn is invoked after a user has logged in.
-func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
+func (p *Plugin) UserHasLoggedIn(_ *plugin.Context, _ *model.User) {
 	// send the config to the webapp
 	config := p.getConfiguration().ToWebappConfig()
 	p.API.PublishWebSocketEvent(WebsocketEventConfigUpdated, config.ToMap(), &model.WebsocketBroadcast{})
 }
 
 // ServeHTTP handles HTTP requests for the plugin.
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("New plugin request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	p.router.ServeHTTP(w, r)
 }

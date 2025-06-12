@@ -26,7 +26,7 @@ func (p *Plugin) EncodeToken(userID string, fileID string) string {
 func (p *Plugin) DecodeToken(tokenString string) (WopiToken, bool) {
 	config := p.getConfiguration()
 	wopiToken := WopiToken{}
-	_, err := jwt.ParseWithClaims(tokenString, &wopiToken, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, &wopiToken, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(config.EncryptionKey), nil
 	})
 
