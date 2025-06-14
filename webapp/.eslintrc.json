@@ -1,7 +1,7 @@
 {
   "extends": [
       "eslint:recommended",
-      "plugin:@mattermost/react"
+      "plugin:react-hooks/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 8,
