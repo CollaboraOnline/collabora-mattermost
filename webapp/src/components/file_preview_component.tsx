@@ -39,10 +39,12 @@ const FilePreviewComponent: FC<Props> = ({fileInfo}: Props) => {
                 setLoading={setLoading}
             />
             {canCurrentUserEdit && !loading && !editable && (
-                <Button onClick={enableEditing}>
+                <Button
+                    onClick={enableEditing}
+                    aria-label='Edit'
+                >
                     <span className='wopi-switch-to-edit-mode'>
                         <i className='fa fa-pencil-square-o'/>
-                        {' Edit'}
                     </span>
                 </Button>
             )}
