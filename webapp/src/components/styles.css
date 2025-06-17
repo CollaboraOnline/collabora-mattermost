@@ -106,10 +106,6 @@
 
 .wopi-switch-to-edit-mode {
     line-height: 2.5em;
-    padding: 0 1.5em;
-    position: absolute;
-    top: 0;
-    right: 0;
     border-color: #fff;
     font-size: 10pt !important;
     color: #1c2028;
