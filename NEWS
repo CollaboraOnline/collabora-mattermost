@@ -1,0 +1,13 @@
+1.2.0
+
+- Various dependency updates
+  - Now build on a more recent Node
+- Some refactoring.
+- Add File Preview Modal
+- Update the plugin to use new file API
+- Read-only mode
+  - Added Edit button from read-only view.
+- New document from template
+- Encode WOPISrc [#82](https://github.com/CollaboraOnline/collabora-mattermost/issues/82)
+- Fix the use of self signed certificates (`SkipSSLVerify`)
+  [#81](https://github.com/CollaboraOnline/collabora-mattermost/issues/81)
