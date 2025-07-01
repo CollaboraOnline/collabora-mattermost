@@ -6,7 +6,7 @@
     "support_url": "https://github.com/CollaboraOnline/collabora-mattermost/issues",
     "release_notes_url": "https://github.com/CollaboraOnline/collabora-mattermost/releases/latest",
     "icon_path": "assets/icons/icon.svg",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "min_server_version": "5.12.0",
     "server": {
         "executables": {
