@@ -1,6 +1,10 @@
-1.2.1 -
+1.2.1 - 2025-08-08
 
-
+- Security updates
+  - Update jwt-go to 3.2.1 (security advisories).
+    [#104](https://github.com/CollaboraOnline/collabora-mattermost/pull/104)
+  - Bump form-data from 3.0.3 to 3.0.4 in /webapp
+    [#105](https://github.com/CollaboraOnline/collabora-mattermost/pull/105)
 
 1.2.0 - 2025-07-01
 
